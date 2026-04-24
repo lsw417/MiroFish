@@ -6,11 +6,13 @@ Zep 的 node/edge 列表接口使用 UUID cursor 分页，
 
 from __future__ import annotations
 
+import threading
 import time
 from collections.abc import Callable
 from typing import Any
 
 from zep_cloud import InternalServerError
+from zep_cloud.core.api_error import ApiError
 from zep_cloud.client import Zep
 
 from .logger import get_logger
@@ -19,8 +21,40 @@ logger = get_logger('mirofish.zep_paging')
 
 _DEFAULT_PAGE_SIZE = 100
 _MAX_NODES = 2000
-_DEFAULT_MAX_RETRIES = 3
+_DEFAULT_MAX_RETRIES = 5
 _DEFAULT_RETRY_DELAY = 2.0  # seconds, doubles each retry
+
+# 전역 rate limiter
+_zep_lock = threading.Lock()
+_zep_last_call_time: float = 0.0
+_zep_cooldown_until: float = 0.0  # 429 받으면 이 시각까지 전체 차단
+_ZEP_MIN_INTERVAL = 0.3  # 초당 ~3회 (여유있게)
+
+
+def _zep_rate_limited_call(api_call: Callable, *args, **kwargs):
+    """전역 rate limit + 429 쿨다운 적용하여 Zep API 호출"""
+    global _zep_last_call_time, _zep_cooldown_until
+    with _zep_lock:
+        now = time.time()
+        # 429 쿨다운 중이면 풀릴 때까지 대기
+        if now < _zep_cooldown_until:
+            wait = _zep_cooldown_until - now
+            logger.info(f"Zep 전역 쿨다운 중, {wait:.0f}초 대기...")
+            time.sleep(wait)
+        # 최소 간격 유지
+        elapsed = time.time() - _zep_last_call_time
+        if elapsed < _ZEP_MIN_INTERVAL:
+            time.sleep(_ZEP_MIN_INTERVAL - elapsed)
+        _zep_last_call_time = time.time()
+    return api_call(*args, **kwargs)
+
+
+def _set_zep_cooldown(seconds: float = 70.0):
+    """429 발생 시 전역 쿨다운 설정"""
+    global _zep_cooldown_until
+    with _zep_lock:
+        _zep_cooldown_until = time.time() + seconds
+        logger.warning(f"Zep 전역 쿨다운 설정: {seconds}초")
 
 
 def _fetch_page_with_retry(
@@ -40,7 +74,15 @@ def _fetch_page_with_retry(
 
     for attempt in range(max_retries):
         try:
-            return api_call(*args, **kwargs)
+            return _zep_rate_limited_call(api_call, *args, **kwargs)
+        except ApiError as e:
+            # 429 Rate Limit: 전역 쿨다운 설정 후 재시도
+            if e.status_code == 429:
+                _set_zep_cooldown(70.0)
+                logger.warning(f"Zep 429 on {page_description}, 70초 전역 쿨다운 설정")
+                last_exception = e
+                continue
+            raise
         except (ConnectionError, TimeoutError, OSError, InternalServerError) as e:
             last_exception = e
             if attempt < max_retries - 1:

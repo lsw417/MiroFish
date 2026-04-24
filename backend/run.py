@@ -48,3 +48,16 @@ def main():
 if __name__ == '__main__':
     main()
 
+# 실행시 
+# cd /Users/san/san_code/MiroFish/backend
+# source .venv/bin/activate
+# python run.py
+
+# 종료시 
+# lsof -ti :5001 | xargs kill -9 2>/dev/null && echo "완료" 
+
+
+# 프론트는 아래로 
+# cd /Users/san/san_code/MiroFish/frontend
+# /opt/homebrew/bin/npm run dev
+

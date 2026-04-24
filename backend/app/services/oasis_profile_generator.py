@@ -20,7 +20,6 @@ from zep_cloud.client import Zep
 
 from ..config import Config
 from ..utils.logger import get_logger
-from ..utils.locale import get_language_instruction, get_locale, set_locale, t
 from .zep_entity_reader import EntityNode, ZepEntityReader
 
 logger = get_logger('mirofish.oasis_profile')
@@ -253,6 +252,12 @@ class OasisProfileGenerator:
                 entity_attributes=entity.attributes
             )
         
+        # display_name이 있으면 name과 username을 업데이트
+        display_name = profile_data.get("display_name", "").strip()
+        if display_name:
+            name = display_name
+            user_name = self._generate_username(display_name)
+
         return OasisAgentProfile(
             user_id=user_id,
             user_name=user_name,
@@ -314,7 +319,7 @@ class OasisProfileGenerator:
             logger.debug(f"跳过Zep检索：未设置graph_id")
             return results
         
-        comprehensive_query = t('progress.zepSearchQuery', name=entity_name)
+        comprehensive_query = f"关于{entity_name}的所有信息、活动、事件、关系和背景"
         
         def search_edges():
             """搜索边（事实/关系）- 带重试机制"""
@@ -647,20 +652,24 @@ class OasisProfileGenerator:
                     pass
         
         # 6. 尝试从内容中提取部分信息
+        display_name_match = re.search(r'"display_name"\s*:\s*"([^"]*)"', content)
         bio_match = re.search(r'"bio"\s*:\s*"([^"]*)"', content)
         persona_match = re.search(r'"persona"\s*:\s*"([^"]*)', content)  # 可能被截断
-        
+
         bio = bio_match.group(1) if bio_match else (entity_summary[:200] if entity_summary else f"{entity_type}: {entity_name}")
         persona = persona_match.group(1) if persona_match else (entity_summary or f"{entity_name}是一个{entity_type}。")
-        
+
         # 如果提取到了有意义的内容，标记为已修复
         if bio_match or persona_match:
             logger.info(f"从损坏的JSON中提取了部分信息")
-            return {
+            result = {
                 "bio": bio,
                 "persona": persona,
                 "_fixed": True
             }
+            if display_name_match:
+                result["display_name"] = display_name_match.group(1)
+            return result
         
         # 7. 完全失败，返回基础结构
         logger.warning(f"JSON修复失败，返回基础结构")
@@ -671,8 +680,8 @@ class OasisProfileGenerator:
     
     def _get_system_prompt(self, is_individual: bool) -> str:
         """获取系统提示词"""
-        base_prompt = "你是社交媒体用户画像生成专家。生成详细、真实的人设用于舆论模拟,最大程度还原已有现实情况。必须返回有效的JSON格式，所有字符串值不能包含未转义的换行符。"
-        return f"{base_prompt}\n\n{get_language_instruction()}"
+        base_prompt = "你是社交媒体用户画像生成专家。生成详细、真实的人设用于舆论模拟,最大程度还原已有现实情况。必须返回有效的JSON格式，所有字符串值不能包含未转义的换行符。使用韩语（한국어）。"
+        return base_prompt
     
     def _build_individual_persona_prompt(
         self,
@@ -687,38 +696,39 @@ class OasisProfileGenerator:
         attrs_str = json.dumps(entity_attributes, ensure_ascii=False) if entity_attributes else "无"
         context_str = context[:3000] if context else "无额外上下文"
         
-        return f"""为实体生成详细的社交媒体用户人设,最大程度还原已有现实情况。
+        return f"""엔티티에 대한 상세한 소셜 미디어 사용자 페르소나를 생성하세요. 최대한 현실을 반영하세요.
 
-实体名称: {entity_name}
-实体类型: {entity_type}
-实体摘要: {entity_summary}
-实体属性: {attrs_str}
+엔티티 이름: {entity_name}
+엔티티 유형: {entity_type}
+엔티티 요약: {entity_summary}
+엔티티 속성: {attrs_str}
 
-上下文信息:
+컨텍스트 정보:
 {context_str}
 
-请生成JSON，包含以下字段:
+다음 필드를 포함한 JSON을 생성하세요:
 
-1. bio: 社交媒体简介，200字
-2. persona: 详细人设描述（2000字的纯文本），需包含:
-   - 基本信息（年龄、职业、教育背景、所在地）
-   - 人物背景（重要经历、与事件的关联、社会关系）
-   - 性格特征（MBTI类型、核心性格、情绪表达方式）
-   - 社交媒体行为（发帖频率、内容偏好、互动风格、语言特点）
-   - 立场观点（对话题的态度、可能被激怒/感动的内容）
-   - 独特特征（口头禅、特殊经历、个人爱好）
-   - 个人记忆（人设的重要部分，要介绍这个个体与事件的关联，以及这个个体在事件中的已有动作与反应）
-3. age: 年龄数字（必须是整数）
-4. gender: 性别，必须是英文: "male" 或 "female"
-5. mbti: MBTI类型（如INTJ、ENFP等）
-6. country: 国家（使用中文，如"中国"）
-7. profession: 职业
-8. interested_topics: 感兴趣话题数组
+0. display_name: 이 인물의 명확하고 공식적인 전체 이름（한국어 또는 원어 사용, 예: "김민준", "박지수 교수", "이준호 대표이사"）. 원래 엔티티 이름이 역할명/코드명인 경우 문맥에서 추론하여 실제 이름처럼 보이는 이름을 생성하세요.
+1. bio: 소셜 미디어 소개, 200자 이내
+2. persona: 상세 페르소나 설명（순수 텍스트 2000자), 다음 포함:
+   - 기본 정보（나이, 직업, 학력, 거주지）
+   - 인물 배경（주요 경험, 사건과의 연관성, 사회적 관계）
+   - 성격 특성（MBTI 유형, 핵심 성격, 감정 표현 방식）
+   - 소셜 미디어 행동（게시 빈도, 콘텐츠 선호도, 상호작용 스타일, 언어 특성）
+   - 입장과 관점（주제에 대한 태도, 자극받거나 감동받을 수 있는 내용）
+   - 독특한 특징（말버릇, 특별한 경험, 개인 취미）
+   - 개인 기억（이 개인과 사건의 연관성, 사건에서의 기존 행동과 반응）
+3. age: 나이（정수여야 함）
+4. gender: 성별, 반드시 영어: "male" 또는 "female"
+5. mbti: MBTI 유형（예: INTJ, ENFP 등）
+6. country: 국가（한국어로, 예: "한국"）
+7. profession: 직업
+8. interested_topics: 관심 주제 배열
 
-重要:
-- 所有字段值必须是字符串或数字，不要使用换行符
-- persona必须是一段连贯的文字描述
-- {get_language_instruction()} (gender字段必须用英文male/female)
+중요:
+- 모든 필드 값은 문자열 또는 숫자여야 하며 줄바꿈 문자를 사용하지 말것
+- persona는 연속적인 텍스트 설명이어야 함
+- 한국어 사용（gender 필드만 영어 male/female 사용）
 - 内容要与实体信息保持一致
 - age必须是有效的整数，gender必须是"male"或"female"
 """
@@ -736,38 +746,39 @@ class OasisProfileGenerator:
         attrs_str = json.dumps(entity_attributes, ensure_ascii=False) if entity_attributes else "无"
         context_str = context[:3000] if context else "无额外上下文"
         
-        return f"""为机构/群体实体生成详细的社交媒体账号设定,最大程度还原已有现实情况。
+        return f"""기관/단체 엔티티에 대한 상세한 소셜 미디어 계정 설정을 생성하세요. 최대한 현실을 반영하세요.
 
-实体名称: {entity_name}
-实体类型: {entity_type}
-实体摘要: {entity_summary}
-实体属性: {attrs_str}
+엔티티 이름: {entity_name}
+엔티티 유형: {entity_type}
+엔티티 요약: {entity_summary}
+엔티티 속성: {attrs_str}
 
-上下文信息:
+컨텍스트 정보:
 {context_str}
 
-请生成JSON，包含以下字段:
+다음 필드를 포함한 JSON을 생성하세요:
 
-1. bio: 官方账号简介，200字，专业得体
-2. persona: 详细账号设定描述（2000字的纯文本），需包含:
-   - 机构基本信息（正式名称、机构性质、成立背景、主要职能）
-   - 账号定位（账号类型、目标受众、核心功能）
-   - 发言风格（语言特点、常用表达、禁忌话题）
-   - 发布内容特点（内容类型、发布频率、活跃时间段）
-   - 立场态度（对核心话题的官方立场、面对争议的处理方式）
-   - 特殊说明（代表的群体画像、运营习惯）
-   - 机构记忆（机构人设的重要部分，要介绍这个机构与事件的关联，以及这个机构在事件中的已有动作与反应）
-3. age: 固定填30（机构账号的虚拟年龄）
-4. gender: 固定填"other"（机构账号使用other表示非个人）
-5. mbti: MBTI类型，用于描述账号风格，如ISTJ代表严谨保守
-6. country: 国家（使用中文，如"中国"）
-7. profession: 机构职能描述
-8. interested_topics: 关注领域数组
+0. display_name: 이 기관/단체의 공식 전체 명칭（한국어 또는 원어 사용, 예: "서울대학교", "한국환경부", "삼성전자 주식회사"）. 원래 엔티티 이름이 약칭이나 코드명인 경우 전체 공식 명칭을 사용하세요.
+1. bio: 공식 계정 소개, 200자 이내, 전문적이고 적절하게
+2. persona: 상세 계정 설정 설명（순수 텍스트 2000자), 다음 포함:
+   - 기관 기본 정보（공식 명칭, 기관 성격, 설립 배경, 주요 기능）
+   - 계정 포지셔닝（계정 유형, 대상 독자, 핵심 기능）
+   - 발언 스타일（언어 특성, 자주 쓰는 표현, 금기 주제）
+   - 게시 콘텐츠 특성（콘텐츠 유형, 게시 빈도, 활동 시간대）
+   - 입장과 태도（핵심 주제에 대한 공식 입장, 논쟁 처리 방식）
+   - 특별 사항（대표 집단 프로필, 운영 습관）
+   - 기관 기억（기관과 사건의 연관성, 사건에서의 기존 행동과 반응）
+3. age: 고정값 30（기관 계정의 가상 나이）
+4. gender: 고정값 "other"（기관 계정은 개인이 아님을 표시）
+5. mbti: MBTI 유형, 계정 스타일 설명에 사용（예: ISTJ는 신중하고 보수적）
+6. country: 국가（한국어로, 예: "한국"）
+7. profession: 기관 기능 설명
+8. interested_topics: 관심 분야 배열
 
-重要:
-- 所有字段值必须是字符串或数字，不允许null值
-- persona必须是一段连贯的文字描述，不要使用换行符
-- {get_language_instruction()} (gender字段必须用英文"other")
+중요:
+- 모든 필드 값은 문자열 또는 숫자여야 하며 null 값 불허
+- persona는 연속적인 텍스트 설명이어야 하며 줄바꿈 문자 사용 금지
+- 한국어 사용（gender 필드만 영어 "other" 사용）
 - age必须是整数30，gender必须是字符串"other"
 - 机构账号发言要符合其身份定位"""
     
@@ -814,7 +825,7 @@ class OasisProfileGenerator:
                 "age": 30,  # 机构虚拟年龄
                 "gender": "other",  # 机构使用other
                 "mbti": "ISTJ",  # 机构风格：严谨保守
-                "country": "中国",
+                "country": "한국",
                 "profession": "Media",
                 "interested_topics": ["General News", "Current Events", "Public Affairs"],
             }
@@ -826,7 +837,7 @@ class OasisProfileGenerator:
                 "age": 30,  # 机构虚拟年龄
                 "gender": "other",  # 机构使用other
                 "mbti": "ISTJ",  # 机构风格：严谨保守
-                "country": "中国",
+                "country": "한국",
                 "profession": entity_type,
                 "interested_topics": ["Public Policy", "Community", "Official Announcements"],
             }
@@ -916,12 +927,8 @@ class OasisProfileGenerator:
                 except Exception as e:
                     logger.warning(f"实时保存 profiles 失败: {e}")
         
-        # Capture locale before spawning thread pool workers
-        current_locale = get_locale()
-
         def generate_single_profile(idx: int, entity: EntityNode) -> tuple:
             """生成单个profile的工作函数"""
-            set_locale(current_locale)
             entity_type = entity.get_entity_type() or "Entity"
             
             try:
@@ -1022,7 +1029,7 @@ class OasisProfileGenerator:
         
         output_lines = [
             f"\n{separator}",
-            t('progress.profileGenerated', name=entity_name, type=entity_type),
+            f"[已生成] {entity_name} ({entity_type})",
             f"{separator}",
             f"用户名: {profile.user_name}",
             f"",

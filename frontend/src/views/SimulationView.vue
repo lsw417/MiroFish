@@ -15,17 +15,15 @@
             :class="{ active: viewMode === mode }"
             @click="viewMode = mode"
           >
-            {{ { graph: $t('main.layoutGraph'), split: $t('main.layoutSplit'), workbench: $t('main.layoutWorkbench') }[mode] }}
+            {{ { graph: '그래프', split: '양분할', workbench: '작업대' }[mode] }}
           </button>
         </div>
       </div>
 
       <div class="header-right">
-        <LanguageSwitcher />
-        <div class="step-divider"></div>
         <div class="workflow-step">
           <span class="step-num">Step 2/5</span>
-          <span class="step-name">{{ $tm('main.stepNames')[1] }}</span>
+          <span class="step-name">환경 설정</span>
         </div>
         <div class="step-divider"></div>
         <span class="status-indicator" :class="statusClass">
@@ -48,7 +46,7 @@
         />
       </div>
 
-      <!-- Right Panel: Step2 环境搭建 -->
+      <!-- Right Panel: Step2 환경 설정 -->
       <div class="panel-wrapper right" :style="rightPanelStyle">
         <Step2EnvSetup
           :simulationId="currentSimulationId"
@@ -72,10 +70,7 @@ import GraphPanel from '../components/GraphPanel.vue'
 import Step2EnvSetup from '../components/Step2EnvSetup.vue'
 import { getProject, getGraphData } from '../api/graph'
 import { getSimulation, stopSimulation, getEnvStatus, closeSimulationEnv } from '../api/simulation'
-import LanguageSwitcher from '../components/LanguageSwitcher.vue'
-import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
@@ -151,35 +146,42 @@ const handleGoBack = () => {
 }
 
 const handleNextStep = (params = {}) => {
-  addLog(t('log.enterStep3'))
+  addLog('Step 3으로 이동: 시뮬레이션 시작')
 
-  // 记录模拟轮数配置
+  // 시뮬레이션 라운드 수 설정 기록
   if (params.maxRounds) {
-    addLog(t('log.customRoundsConfig', { rounds: params.maxRounds }))
+    addLog(`커스텀 시뮬레이션 라운드 수: ${params.maxRounds} 라운드`)
   } else {
-    addLog(t('log.useAutoRounds'))
+    addLog('자동 설정된 시뮬레이션 라운드 수 사용')
   }
-  
-  // 构建路由参数
+
+  // 라우트 파라미터 구성
   const routeParams = {
     name: 'SimulationRun',
-    params: { simulationId: currentSimulationId.value }
+    params: { simulationId: currentSimulationId.value },
+    query: {}
   }
-  
-  // 如果有自定义轮数，通过 query 参数传递
+
   if (params.maxRounds) {
-    routeParams.query = { maxRounds: params.maxRounds }
+    routeParams.query.maxRounds = params.maxRounds
   }
-  
-  // 跳转到 Step 3 页面
+
+  // 성능 설정 query로 전달
+  if (params.reportSettings) {
+    const s = params.reportSettings
+    routeParams.query.maxSections = s.maxSections
+    routeParams.query.maxToolCalls = s.maxToolCalls
+    routeParams.query.maxTokens = s.maxTokens
+  }
+
   router.push(routeParams)
 }
 
 // --- Data Logic ---
 
 /**
- * 检查并关闭正在运行的模拟
- * 当用户从 Step 3 返回到 Step 2 时，默认用户要退出模拟
+ * 실행 중인 시뮬레이션 확인 및 종료
+ * 사용자가 Step 3에서 Step 2로 돌아올 때 기본적으로 시뮬레이션을 종료
  */
 const checkAndStopRunningSimulation = async () => {
   if (!currentSimulationId.value) return
@@ -189,84 +191,84 @@ const checkAndStopRunningSimulation = async () => {
     const envStatusRes = await getEnvStatus({ simulation_id: currentSimulationId.value })
     
     if (envStatusRes.success && envStatusRes.data?.env_alive) {
-      addLog(t('log.detectedSimEnvRunning'))
-      
-      // 尝试优雅关闭模拟环境
+      addLog('시뮬레이션 환경이 실행 중임을 감지, 종료 중...')
+
+      // 정상 종료 시도
       try {
-        const closeRes = await closeSimulationEnv({ 
+        const closeRes = await closeSimulationEnv({
           simulation_id: currentSimulationId.value,
-          timeout: 10  // 10秒超时
+          timeout: 10  // 10초 타임아웃
         })
-        
+
         if (closeRes.success) {
-          addLog(t('log.simEnvClosed'))
+          addLog('✓ 시뮬레이션 환경 종료됨')
         } else {
-          addLog(t('log.closeSimEnvFailedWithError', { error: closeRes.error || t('common.unknownError') }))
-          // 如果优雅关闭失败，尝试强制停止
+          addLog(`시뮬레이션 환경 종료 실패: ${closeRes.error || '알 수 없는 오류'}`)
+          // 정상 종료 실패 시 강제 중지 시도
           await forceStopSimulation()
         }
       } catch (closeErr) {
-        addLog(t('log.closeSimEnvException', { error: closeErr.message }))
-        // 如果优雅关闭异常，尝试强制停止
+        addLog(`시뮬레이션 환경 종료 오류: ${closeErr.message}`)
+        // 정상 종료 오류 시 강제 중지 시도
         await forceStopSimulation()
       }
     } else {
-      // 环境未运行，但可能进程还在，检查模拟状态
+      // 환경이 실행 중이 아니지만 프로세스가 남아있을 수 있으므로 시뮬레이션 상태 확인
       const simRes = await getSimulation(currentSimulationId.value)
       if (simRes.success && simRes.data?.status === 'running') {
-        addLog(t('log.detectedSimRunning'))
+        addLog('시뮬레이션 상태가 실행 중임을 감지, 중지 중...')
         await forceStopSimulation()
       }
     }
   } catch (err) {
-    // 检查环境状态失败不影响后续流程
-    console.warn('检查模拟状态失败:', err)
+    // 환경 상태 확인 실패는 후속 프로세스에 영향을 주지 않음
+    console.warn('시뮬레이션 상태 확인 실패:', err)
   }
 }
 
 /**
- * 强制停止模拟
+ * 시뮬레이션 강제 중지
  */
 const forceStopSimulation = async () => {
   try {
     const stopRes = await stopSimulation({ simulation_id: currentSimulationId.value })
     if (stopRes.success) {
-      addLog(t('log.simForceStopSuccess'))
+      addLog('✓ 시뮬레이션 강제 중지됨')
     } else {
-      addLog(t('log.forceStopSimFailed', { error: stopRes.error || t('common.unknownError') }))
+      addLog(`시뮬레이션 강제 중지 실패: ${stopRes.error || '알 수 없는 오류'}`)
     }
   } catch (err) {
-    addLog(t('log.forceStopSimException', { error: err.message }))
+    addLog(`시뮬레이션 강제 중지 오류: ${err.message}`)
   }
 }
 
 const loadSimulationData = async () => {
   try {
-    addLog(t('log.loadingSimData', { id: currentSimulationId.value }))
+    addLog(`시뮬레이션 데이터 로드: ${currentSimulationId.value}`)
 
-    // 获取 simulation 信息
+    // simulation 정보 가져오기
     const simRes = await getSimulation(currentSimulationId.value)
     if (simRes.success && simRes.data) {
       const simData = simRes.data
 
-      // 获取 project 信息
+      // project 정보 가져오기
       if (simData.project_id) {
         const projRes = await getProject(simData.project_id)
         if (projRes.success && projRes.data) {
           projectData.value = projRes.data
-          addLog(t('log.projectLoadSuccess', { id: projRes.data.project_id }))
-          
-          // 获取 graph 数据
+          addLog(`프로젝트 로드 성공: ${projRes.data.project_id}`)
+
+          // graph 데이터 가져오기
           if (projRes.data.graph_id) {
             await loadGraph(projRes.data.graph_id)
           }
         }
       }
     } else {
-      addLog(t('log.loadSimDataFailed', { error: simRes.error || t('common.unknownError') }))
+      addLog(`시뮬레이션 데이터 로드 실패: ${simRes.error || '알 수 없는 오류'}`)
     }
   } catch (err) {
-    addLog(t('log.loadException', { error: err.message }))
+    addLog(`로드 오류: ${err.message}`)
   }
 }
 
@@ -276,10 +278,10 @@ const loadGraph = async (graphId) => {
     const res = await getGraphData(graphId)
     if (res.success) {
       graphData.value = res.data
-      addLog(t('log.graphDataLoadSuccess'))
+      addLog('그래프 데이터 로드 성공')
     }
   } catch (err) {
-    addLog(t('log.graphLoadFailed', { error: err.message }))
+    addLog(`그래프 로드 실패: ${err.message}`)
   } finally {
     graphLoading.value = false
   }
@@ -292,12 +294,12 @@ const refreshGraph = () => {
 }
 
 onMounted(async () => {
-  addLog(t('log.simViewInit'))
-  
-  // 检查并关闭正在运行的模拟（用户从 Step 3 返回时）
+  addLog('SimulationView 초기화')
+
+  // 실행 중인 시뮬레이션 확인 및 종료 (사용자가 Step 3에서 돌아올 때)
   await checkAndStopRunningSimulation()
-  
-  // 加载模拟数据
+
+  // 시뮬레이션 데이터 로드
   loadSimulationData()
 })
 </script>

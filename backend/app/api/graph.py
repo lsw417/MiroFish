@@ -149,7 +149,10 @@ def generate_ontology():
     """
     try:
         logger.info("=== 开始生成本体定义 ===")
-        
+        logger.info(f"Content-Type: {request.content_type}")
+        logger.info(f"Form keys: {list(request.form.keys())}")
+        logger.info(f"Files keys: {list(request.files.keys())}")
+
         # 获取参数
         simulation_requirement = request.form.get('simulation_requirement', '')
         project_name = request.form.get('project_name', 'Unnamed Project')

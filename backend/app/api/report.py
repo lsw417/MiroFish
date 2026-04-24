@@ -58,6 +58,11 @@ def generate_report():
             }), 400
 
         force_regenerate = data.get('force_regenerate', False)
+
+        # 성능 설정 파라미터 (옵셔널)
+        max_tokens = data.get('max_tokens')
+        max_tool_calls = data.get('max_tool_calls')
+        max_sections = data.get('max_sections')
         
         # 获取模拟信息
         manager = SimulationManager()
@@ -139,7 +144,10 @@ def generate_report():
                 agent = ReportAgent(
                     graph_id=graph_id,
                     simulation_id=simulation_id,
-                    simulation_requirement=simulation_requirement
+                    simulation_requirement=simulation_requirement,
+                    max_tokens=max_tokens,
+                    max_tool_calls=max_tool_calls,
+                    max_sections=max_sections,
                 )
                 
                 # 进度回调

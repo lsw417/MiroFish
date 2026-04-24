@@ -1,23 +1,23 @@
 <template>
   <div class="env-setup-panel">
     <div class="scroll-container">
-      <!-- Step 01: 模拟实例 -->
+      <!-- Step 01: 시뮬레이션 인스턴스 -->
       <div class="step-card" :class="{ 'active': phase === 0, 'completed': phase > 0 }">
         <div class="card-header">
           <div class="step-info">
             <span class="step-num">01</span>
-            <span class="step-title">{{ $t('step2.simInstanceInit') }}</span>
+            <span class="step-title">시뮬레이션 인스턴스 초기화</span>
           </div>
           <div class="step-status">
-            <span v-if="phase > 0" class="badge success">{{ $t('common.completed') }}</span>
-            <span v-else class="badge processing">{{ $t('step2.initializing') }}</span>
+            <span v-if="phase > 0" class="badge success">완료</span>
+            <span v-else class="badge processing">초기화</span>
           </div>
         </div>
-        
+
         <div class="card-content">
           <p class="api-note">POST /api/simulation/create</p>
           <p class="description">
-            {{ $t('step2.simInstanceDesc') }}
+            새 simulation 인스턴스 생성 및 시뮬레이션 세계 파라미터 템플릿 가져오기
           </p>
 
           <div v-if="simulationId" class="info-card">
@@ -35,52 +35,52 @@
             </div>
             <div class="info-row">
               <span class="info-label">Task ID</span>
-              <span class="info-value mono">{{ taskId || $t('step2.asyncTaskDone') }}</span>
+              <span class="info-value mono">{{ taskId || '비동기 작업 완료' }}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Step 02: 生成 Agent 人设 -->
+      <!-- Step 02: 에이전트 페르소나 생성 -->
       <div class="step-card" :class="{ 'active': phase === 1, 'completed': phase > 1 }">
         <div class="card-header">
           <div class="step-info">
             <span class="step-num">02</span>
-            <span class="step-title">{{ $t('step2.generateAgentPersona') }}</span>
+            <span class="step-title">에이전트 페르소나 생성</span>
           </div>
           <div class="step-status">
-            <span v-if="phase > 1" class="badge success">{{ $t('common.completed') }}</span>
+            <span v-if="phase > 1" class="badge success">완료</span>
             <span v-else-if="phase === 1" class="badge processing">{{ prepareProgress }}%</span>
-            <span v-else class="badge pending">{{ $t('common.pending') }}</span>
+            <span v-else class="badge pending">대기</span>
           </div>
         </div>
 
         <div class="card-content">
           <p class="api-note">POST /api/simulation/prepare</p>
           <p class="description">
-            {{ $t('step2.generateAgentPersonaDesc') }}
+            컨텍스트를 결합하여 도구를 자동 호출해 지식 그래프에서 엔티티와 관계를 정리하고, 시뮬레이션 개체를 초기화하며 현실 시드를 기반으로 고유한 행동과 기억 부여
           </p>
 
           <!-- Profiles Stats -->
           <div v-if="profiles.length > 0" class="stats-grid">
             <div class="stat-card">
               <span class="stat-value">{{ profiles.length }}</span>
-              <span class="stat-label">{{ $t('step2.currentAgentCount') }}</span>
+              <span class="stat-label">현재 에이전트 수</span>
             </div>
             <div class="stat-card">
               <span class="stat-value">{{ expectedTotal || '-' }}</span>
-              <span class="stat-label">{{ $t('step2.expectedAgentTotal') }}</span>
+              <span class="stat-label">예상 에이전트 총 수</span>
             </div>
             <div class="stat-card">
               <span class="stat-value">{{ totalTopicsCount }}</span>
-              <span class="stat-label">{{ $t('step2.relatedTopicsCount') }}</span>
+              <span class="stat-label">현실 시드 현재 연관 주제 수</span>
             </div>
           </div>
 
           <!-- Profiles List Preview -->
           <div v-if="profiles.length > 0" class="profiles-preview">
             <div class="preview-header">
-              <span class="preview-title">{{ $t('step2.generatedAgentPersonas') }}</span>
+              <span class="preview-title">생성된 에이전트 페르소나</span>
             </div>
             <div class="profiles-list">
               <div 
@@ -94,9 +94,9 @@
                   <span class="profile-username">@{{ profile.name || `agent_${idx}` }}</span>
                 </div>
                 <div class="profile-meta">
-                  <span class="profile-profession">{{ profile.profession || $t('step2.unknownProfession') }}</span>
+                  <span class="profile-profession">{{ profile.profession || '직업 미상' }}</span>
                 </div>
-                <p class="profile-bio">{{ profile.bio || $t('step2.noBio') }}</p>
+                <p class="profile-bio">{{ profile.bio || '소개 없음' }}</p>
                 <div v-if="profile.interested_topics?.length" class="profile-topics">
                   <span 
                     v-for="topic in profile.interested_topics.slice(0, 3)" 
@@ -113,77 +113,77 @@
         </div>
       </div>
 
-      <!-- Step 03: 生成双平台模拟配置 -->
+      <!-- Step 03: 듀얼 플랫폼 시뮬레이션 설정 생성 -->
       <div class="step-card" :class="{ 'active': phase === 2, 'completed': phase > 2 }">
         <div class="card-header">
           <div class="step-info">
             <span class="step-num">03</span>
-            <span class="step-title">{{ $t('step2.dualPlatformConfig') }}</span>
+            <span class="step-title">듀얼 플랫폼 시뮬레이션 설정 생성</span>
           </div>
           <div class="step-status">
-            <span v-if="phase > 2" class="badge success">{{ $t('common.completed') }}</span>
-            <span v-else-if="phase === 2" class="badge processing">{{ $t('step2.generating') }}</span>
-            <span v-else class="badge pending">{{ $t('common.pending') }}</span>
+            <span v-if="phase > 2" class="badge success">완료</span>
+            <span v-else-if="phase === 2" class="badge processing">생성 중</span>
+            <span v-else class="badge pending">대기</span>
           </div>
         </div>
 
         <div class="card-content">
           <p class="api-note">POST /api/simulation/prepare</p>
           <p class="description">
-            {{ $t('step2.dualPlatformConfigDesc') }}
+            LLM이 시뮬레이션 요구사항과 현실 시드를 기반으로 세계 시간 흐름 속도, 추천 알고리즘, 개체별 활성 시간대, 발언 빈도, 이벤트 트리거 등의 파라미터를 자동 설정
           </p>
           
           <!-- Config Preview -->
           <div v-if="simulationConfig" class="config-detail-panel">
-            <!-- 时间配置 -->
+            <!-- 시간 설정 -->
             <div class="config-block">
               <div class="config-grid">
                 <div class="config-item">
-                  <span class="config-item-label">{{ $t('step2.simulationDuration') }}</span>
-                  <span class="config-item-value">{{ simulationConfig.time_config?.total_simulation_hours || '-' }} {{ $t('common.hours') }}</span>
+                  <span class="config-item-label">시뮬레이션 시간</span>
+                  <span class="config-item-value">{{ simulationConfig.time_config?.total_simulation_hours || '-' }} 시간</span>
                 </div>
                 <div class="config-item">
-                  <span class="config-item-label">{{ $t('step2.roundDuration') }}</span>
-                  <span class="config-item-value">{{ simulationConfig.time_config?.minutes_per_round || '-' }} {{ $t('common.minutes') }}</span>
+                  <span class="config-item-label">라운드당 시간</span>
+                  <span class="config-item-value">{{ simulationConfig.time_config?.minutes_per_round || '-' }} 분</span>
                 </div>
                 <div class="config-item">
-                  <span class="config-item-label">{{ $t('step2.totalRounds') }}</span>
-                  <span class="config-item-value">{{ Math.floor((simulationConfig.time_config?.total_simulation_hours * 60 / simulationConfig.time_config?.minutes_per_round)) || '-' }} {{ $t('common.rounds') }}</span>
+                  <span class="config-item-label">총 라운드</span>
+                  <span class="config-item-value">{{ Math.floor((simulationConfig.time_config?.total_simulation_hours * 60 / simulationConfig.time_config?.minutes_per_round)) || '-' }} 라운드</span>
                 </div>
                 <div class="config-item">
-                  <span class="config-item-label">{{ $t('step2.activePerHour') }}</span>
+                  <span class="config-item-label">시간당 활성</span>
                   <span class="config-item-value">{{ simulationConfig.time_config?.agents_per_hour_min }}-{{ simulationConfig.time_config?.agents_per_hour_max }}</span>
                 </div>
               </div>
               <div class="time-periods">
                 <div class="period-item">
-                  <span class="period-label">{{ $t('step2.peakHours') }}</span>
+                  <span class="period-label">피크 시간대</span>
                   <span class="period-hours">{{ simulationConfig.time_config?.peak_hours?.join(':00, ') }}:00</span>
                   <span class="period-multiplier">×{{ simulationConfig.time_config?.peak_activity_multiplier }}</span>
                 </div>
                 <div class="period-item">
-                  <span class="period-label">{{ $t('step2.workHours') }}</span>
+                  <span class="period-label">업무 시간대</span>
                   <span class="period-hours">{{ simulationConfig.time_config?.work_hours?.[0] }}:00-{{ simulationConfig.time_config?.work_hours?.slice(-1)[0] }}:00</span>
                   <span class="period-multiplier">×{{ simulationConfig.time_config?.work_activity_multiplier }}</span>
                 </div>
                 <div class="period-item">
-                  <span class="period-label">{{ $t('step2.morningHours') }}</span>
+                  <span class="period-label">아침 시간대</span>
                   <span class="period-hours">{{ simulationConfig.time_config?.morning_hours?.[0] }}:00-{{ simulationConfig.time_config?.morning_hours?.slice(-1)[0] }}:00</span>
                   <span class="period-multiplier">×{{ simulationConfig.time_config?.morning_activity_multiplier }}</span>
                 </div>
                 <div class="period-item">
-                  <span class="period-label">{{ $t('step2.offPeakHours') }}</span>
+                  <span class="period-label">저조 시간대</span>
                   <span class="period-hours">{{ simulationConfig.time_config?.off_peak_hours?.[0] }}:00-{{ simulationConfig.time_config?.off_peak_hours?.slice(-1)[0] }}:00</span>
                   <span class="period-multiplier">×{{ simulationConfig.time_config?.off_peak_activity_multiplier }}</span>
                 </div>
               </div>
             </div>
 
-            <!-- Agent 配置 -->
+            <!-- 에이전트 설정 -->
             <div class="config-block">
               <div class="config-block-header">
-                <span class="config-block-title">{{ $t('step2.agentConfig') }}</span>
-                <span class="config-block-badge">{{ simulationConfig.agent_configs?.length || 0 }} {{ $t('common.items') }}</span>
+                <span class="config-block-title">에이전트 설정</span>
+                <span class="config-block-badge">{{ simulationConfig.agent_configs?.length || 0 }} 개</span>
               </div>
               <div class="agents-cards">
                 <div 
@@ -191,7 +191,7 @@
                   :key="agent.agent_id" 
                   class="agent-card"
                 >
-                  <!-- 卡片头部 -->
+                  <!-- 카드 헤더 -->
                   <div class="agent-card-header">
                     <div class="agent-identity">
                       <span class="agent-id">Agent {{ agent.agent_id }}</span>
@@ -203,9 +203,9 @@
                     </div>
                   </div>
                   
-                  <!-- 活跃时间轴 -->
+                  <!-- 활성 타임라인 -->
                   <div class="agent-timeline">
-                    <span class="timeline-label">{{ $t('step2.activeTimePeriod') }}</span>
+                    <span class="timeline-label">활성 시간대</span>
                     <div class="mini-timeline">
                       <div 
                         v-for="hour in 24" 
@@ -224,38 +224,38 @@
                     </div>
                   </div>
 
-                  <!-- 行为参数 -->
+                  <!-- 행동 파라미터 -->
                   <div class="agent-params">
                     <div class="param-group">
                       <div class="param-item">
-                        <span class="param-label">{{ $t('step2.postsPerHour') }}</span>
+                        <span class="param-label">게시/시간</span>
                         <span class="param-value">{{ agent.posts_per_hour }}</span>
                       </div>
                       <div class="param-item">
-                        <span class="param-label">{{ $t('step2.commentsPerHour') }}</span>
+                        <span class="param-label">댓글/시간</span>
                         <span class="param-value">{{ agent.comments_per_hour }}</span>
                       </div>
                       <div class="param-item">
-                        <span class="param-label">{{ $t('step2.responseDelay') }}</span>
+                        <span class="param-label">응답 지연</span>
                         <span class="param-value">{{ agent.response_delay_min }}-{{ agent.response_delay_max }}min</span>
                       </div>
                     </div>
                     <div class="param-group">
                       <div class="param-item">
-                        <span class="param-label">{{ $t('step2.activityLevel') }}</span>
+                        <span class="param-label">활성도</span>
                         <span class="param-value with-bar">
                           <span class="mini-bar" :style="{ width: (agent.activity_level * 100) + '%' }"></span>
                           {{ (agent.activity_level * 100).toFixed(0) }}%
                         </span>
                       </div>
                       <div class="param-item">
-                        <span class="param-label">{{ $t('step2.sentimentBias') }}</span>
+                        <span class="param-label">감정 성향</span>
                         <span class="param-value" :class="agent.sentiment_bias > 0 ? 'positive' : agent.sentiment_bias < 0 ? 'negative' : 'neutral'">
                           {{ agent.sentiment_bias > 0 ? '+' : '' }}{{ agent.sentiment_bias?.toFixed(1) }}
                         </span>
                       </div>
                       <div class="param-item">
-                        <span class="param-label">{{ $t('step2.influenceWeight') }}</span>
+                        <span class="param-label">영향력</span>
                         <span class="param-value highlight">{{ agent.influence_weight?.toFixed(1) }}</span>
                       </div>
                     </div>
@@ -264,62 +264,62 @@
               </div>
             </div>
 
-            <!-- 平台配置 -->
+            <!-- 플랫폼 설정 -->
             <div class="config-block">
               <div class="config-block-header">
-                <span class="config-block-title">{{ $t('step2.recommendAlgoConfig') }}</span>
+                <span class="config-block-title">추천 알고리즘 설정</span>
               </div>
               <div class="platforms-grid">
                 <div v-if="simulationConfig.twitter_config" class="platform-card">
                   <div class="platform-card-header">
-                    <span class="platform-name">{{ $t('step2.platform1Name') }}</span>
+                    <span class="platform-name">플랫폼 1: 광장 / 정보 피드</span>
                   </div>
                   <div class="platform-params">
                     <div class="param-row">
-                      <span class="param-label">{{ $t('step2.recencyWeight') }}</span>
+                      <span class="param-label">시효 가중치</span>
                       <span class="param-value">{{ simulationConfig.twitter_config.recency_weight }}</span>
                     </div>
                     <div class="param-row">
-                      <span class="param-label">{{ $t('step2.popularityWeight') }}</span>
+                      <span class="param-label">인기도 가중치</span>
                       <span class="param-value">{{ simulationConfig.twitter_config.popularity_weight }}</span>
                     </div>
                     <div class="param-row">
-                      <span class="param-label">{{ $t('step2.relevanceWeight') }}</span>
+                      <span class="param-label">관련성 가중치</span>
                       <span class="param-value">{{ simulationConfig.twitter_config.relevance_weight }}</span>
                     </div>
                     <div class="param-row">
-                      <span class="param-label">{{ $t('step2.viralThreshold') }}</span>
+                      <span class="param-label">바이럴 임계값</span>
                       <span class="param-value">{{ simulationConfig.twitter_config.viral_threshold }}</span>
                     </div>
                     <div class="param-row">
-                      <span class="param-label">{{ $t('step2.echoChamberStrength') }}</span>
+                      <span class="param-label">에코 챔버 강도</span>
                       <span class="param-value">{{ simulationConfig.twitter_config.echo_chamber_strength }}</span>
                     </div>
                   </div>
                 </div>
                 <div v-if="simulationConfig.reddit_config" class="platform-card">
                   <div class="platform-card-header">
-                    <span class="platform-name">{{ $t('step2.platform2Name') }}</span>
+                    <span class="platform-name">플랫폼 2: 주제 / 커뮤니티</span>
                   </div>
                   <div class="platform-params">
                     <div class="param-row">
-                      <span class="param-label">{{ $t('step2.recencyWeight') }}</span>
+                      <span class="param-label">시효 가중치</span>
                       <span class="param-value">{{ simulationConfig.reddit_config.recency_weight }}</span>
                     </div>
                     <div class="param-row">
-                      <span class="param-label">{{ $t('step2.popularityWeight') }}</span>
+                      <span class="param-label">인기도 가중치</span>
                       <span class="param-value">{{ simulationConfig.reddit_config.popularity_weight }}</span>
                     </div>
                     <div class="param-row">
-                      <span class="param-label">{{ $t('step2.relevanceWeight') }}</span>
+                      <span class="param-label">관련성 가중치</span>
                       <span class="param-value">{{ simulationConfig.reddit_config.relevance_weight }}</span>
                     </div>
                     <div class="param-row">
-                      <span class="param-label">{{ $t('step2.viralThreshold') }}</span>
+                      <span class="param-label">바이럴 임계값</span>
                       <span class="param-value">{{ simulationConfig.reddit_config.viral_threshold }}</span>
                     </div>
                     <div class="param-row">
-                      <span class="param-label">{{ $t('step2.echoChamberStrength') }}</span>
+                      <span class="param-label">에코 챔버 강도</span>
                       <span class="param-value">{{ simulationConfig.reddit_config.echo_chamber_strength }}</span>
                     </div>
                   </div>
@@ -327,10 +327,10 @@
               </div>
             </div>
 
-            <!-- LLM 配置推理 -->
+            <!-- LLM 설정 추론 -->
             <div v-if="simulationConfig.generation_reasoning" class="config-block">
               <div class="config-block-header">
-                <span class="config-block-title">{{ $t('step2.llmConfigReasoning') }}</span>
+                <span class="config-block-title">LLM 설정 추론</span>
               </div>
               <div class="reasoning-content">
                 <div 
@@ -346,28 +346,28 @@
         </div>
       </div>
 
-      <!-- Step 04: 初始激活编排 -->
+      <!-- Step 04: 초기 활성화 편성 -->
       <div class="step-card" :class="{ 'active': phase === 3, 'completed': phase > 3 }">
         <div class="card-header">
           <div class="step-info">
             <span class="step-num">04</span>
-            <span class="step-title">{{ $t('step2.initialActivation') }}</span>
+            <span class="step-title">초기 활성화 편성</span>
           </div>
           <div class="step-status">
-            <span v-if="phase > 3" class="badge success">{{ $t('common.completed') }}</span>
-            <span v-else-if="phase === 3" class="badge processing">{{ $t('step2.orchestrating') }}</span>
-            <span v-else class="badge pending">{{ $t('common.pending') }}</span>
+            <span v-if="phase > 3" class="badge success">완료</span>
+            <span v-else-if="phase === 3" class="badge processing">편성 중</span>
+            <span v-else class="badge pending">대기</span>
           </div>
         </div>
 
         <div class="card-content">
           <p class="api-note">POST /api/simulation/prepare</p>
           <p class="description">
-            {{ $t('step2.initialActivationDesc') }}
+            내러티브 방향을 기반으로 초기 활성화 이벤트와 핫 토픽을 자동 생성하여 시뮬레이션 세계의 초기 상태를 가이드
           </p>
 
           <div v-if="simulationConfig?.event_config" class="orchestration-content">
-            <!-- 叙事方向 -->
+            <!-- 내러티브 방향 -->
             <div class="narrative-box">
               <span class="box-label narrative-label">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="special-icon">
@@ -380,14 +380,14 @@
                     </linearGradient>
                   </defs>
                 </svg>
-                {{ $t('step2.narrativeDirection') }}
+                내러티브 가이드 방향
               </span>
               <p class="narrative-text">{{ simulationConfig.event_config.narrative_direction }}</p>
             </div>
 
-            <!-- 热点话题 -->
+            <!-- 핫 토픽 -->
             <div class="topics-section">
-              <span class="box-label">{{ $t('step2.initialHotTopics') }}</span>
+              <span class="box-label">초기 핫 토픽</span>
               <div class="hot-topics-grid">
                 <span v-for="topic in simulationConfig.event_config.hot_topics" :key="topic" class="hot-topic-tag">
                   # {{ topic }}
@@ -395,9 +395,9 @@
               </div>
             </div>
 
-            <!-- 初始帖子流 -->
+            <!-- 초기 게시물 스트림 -->
             <div class="initial-posts-section">
-              <span class="box-label">{{ $t('step2.initialActivationSeq', { count: simulationConfig.event_config.initial_posts.length }) }}</span>
+              <span class="box-label">초기 활성화 시퀀스 ({{ simulationConfig.event_config.initial_posts.length }})</span>
               <div class="posts-timeline">
                 <div v-for="(post, idx) in simulationConfig.event_config.initial_posts" :key="idx" class="timeline-item">
                   <div class="timeline-marker"></div>
@@ -418,34 +418,34 @@
         </div>
       </div>
 
-      <!-- Step 05: 准备完成 -->
+      <!-- Step 05: 준비 완료 -->
       <div class="step-card" :class="{ 'active': phase === 4 }">
         <div class="card-header">
           <div class="step-info">
             <span class="step-num">05</span>
-            <span class="step-title">{{ $t('step2.setupComplete') }}</span>
+            <span class="step-title">준비 완료</span>
           </div>
           <div class="step-status">
-            <span v-if="phase >= 4" class="badge processing">{{ $t('step1.inProgress') }}</span>
-            <span v-else class="badge pending">{{ $t('common.pending') }}</span>
+            <span v-if="phase >= 4" class="badge processing">진행 중</span>
+            <span v-else class="badge pending">대기</span>
           </div>
         </div>
 
         <div class="card-content">
           <p class="api-note">POST /api/simulation/start</p>
-          <p class="description">{{ $t('step2.setupCompleteDesc') }}</p>
-          
-          <!-- 模拟轮数配置 - 只有在配置生成完成且轮数计算出来后才显示 -->
+          <p class="description">시뮬레이션 환경 준비 완료, 시뮬레이션 시작 가능</p>
+
+          <!-- 시뮬레이션 라운드 수 설정 - 설정 생성 완료 및 라운드 수 계산 후에만 표시 -->
           <div v-if="simulationConfig && autoGeneratedRounds" class="rounds-config-section">
             <div class="rounds-header">
               <div class="header-left">
-                <span class="section-title">{{ $t('step2.roundsConfig') }}</span>
-                <span class="section-desc">{{ $t('step2.roundsConfigDesc', { hours: simulationConfig?.time_config?.total_simulation_hours || '-', minutesPerRound: simulationConfig?.time_config?.minutes_per_round || '-' }) }}</span>
+                <span class="section-title">시뮬레이션 라운드 수 설정</span>
+                <span class="section-desc">MiroFish가 현실 <span class="desc-highlight">{{ simulationConfig?.time_config?.total_simulation_hours || '-' }}</span> 시간을 자동으로 시뮬레이션하며, 각 라운드는 현실 <span class="desc-highlight">{{ simulationConfig?.time_config?.minutes_per_round || '-' }}</span> 분의 시간 흐름을 나타냅니다</span>
               </div>
               <label class="switch-control">
                 <input type="checkbox" v-model="useCustomRounds">
                 <span class="switch-track"></span>
-                <span class="switch-label">{{ $t('step2.customToggle') }}</span>
+                <span class="switch-label">커스텀</span>
               </label>
             </div>
             
@@ -454,10 +454,10 @@
                 <div class="slider-display">
                   <div class="slider-main-value">
                     <span class="val-num">{{ customMaxRounds }}</span>
-                    <span class="val-unit">{{ $t('step2.roundsUnit') }}</span>
+                    <span class="val-unit">라운드</span>
                   </div>
                   <div class="slider-meta-info">
-                    <span>{{ $t('step2.estimatedDuration', { minutes: Math.round(customMaxRounds * 0.6) }) }}</span>
+                    <span>에이전트 규모 100 기준: 예상 소요시간 약 {{ Math.round(customMaxRounds * 0.6) }} 분</span>
                   </div>
                 </div>
 
@@ -473,12 +473,12 @@
                   />
                   <div class="range-marks">
                     <span>10</span>
-                    <span 
-                      class="mark-recommend" 
+                    <span
+                      class="mark-recommend"
                       :class="{ active: customMaxRounds === 40 }"
                       @click="customMaxRounds = 40"
                       :style="{ position: 'absolute', left: `calc(${(40 - 10) / (autoGeneratedRounds - 10) * 100}% - 30px)` }"
-                    >{{ $t('step2.recommendedRounds', { rounds: 40 }) }}</span>
+                    >40 (추천)</span>
                     <span>{{ autoGeneratedRounds }}</span>
                   </div>
                 </div>
@@ -488,7 +488,7 @@
                 <div class="auto-info-card">
                   <div class="auto-value">
                     <span class="val-num">{{ autoGeneratedRounds }}</span>
-                    <span class="val-unit">{{ $t('step2.roundsUnit') }}</span>
+                    <span class="val-unit">라운드</span>
                   </div>
                   <div class="auto-content">
                     <div class="auto-meta-row">
@@ -497,11 +497,11 @@
                           <circle cx="12" cy="12" r="10"></circle>
                           <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
-                        {{ $t('step2.estimatedDurationFull', { minutes: Math.round(autoGeneratedRounds * 0.6) }) }}
+                        에이전트 규모 100 기준: 예상 소요시간 {{ Math.round(autoGeneratedRounds * 0.6) }} 분
                       </span>
                     </div>
                     <div class="auto-desc">
-                      <p class="highlight-tip" @click="useCustomRounds = true">{{ $t('step2.customTip') }} ➝</p>
+                      <p class="highlight-tip" @click="useCustomRounds = true">처음 실행 시, ‘커스텀 모드’로 전환하여 시뮬레이션 라운드 수를 줄이는 것을 강력히 권장합니다. 빠른 효과 미리보기와 오류 위험 감소에 도움이 됩니다 ➝</p>
                     </div>
                   </div>
                 </div>
@@ -509,19 +509,86 @@
             </Transition>
           </div>
 
+          <!-- 성능 설정 -->
+          <div class="perf-config-section">
+            <div class="perf-header" @click="showPerfSettings = !showPerfSettings">
+              <span class="section-title">⚙️ 고급 성능 설정</span>
+              <span class="perf-toggle">{{ showPerfSettings ? '▲ 접기' : '▼ 펼치기' }}</span>
+            </div>
+            <Transition name="fade">
+              <div v-if="showPerfSettings" class="perf-content">
+                <!-- 페르소나(에이전트) 최대 수 -->
+                <div class="perf-row">
+                  <div class="perf-label">
+                    <span class="perf-name">최대 페르소나 수</span>
+                    <span class="perf-desc">시뮬레이션에 참여할 에이전트 수 상한</span>
+                  </div>
+                  <div class="perf-slider-wrap">
+                    <span class="perf-val">{{ perfSettings.maxAgents }}</span>
+                    <input type="range" v-model.number="perfSettings.maxAgents" min="5" max="30" step="1" class="minimal-slider"
+                      :style="{ '--percent': ((perfSettings.maxAgents - 5) / 25) * 100 + '%' }" />
+                    <div class="range-edge-labels"><span>5 (빠름)</span><span>30 (풍부)</span></div>
+                  </div>
+                </div>
+                <!-- 보고서 섹션 수 -->
+                <div class="perf-row">
+                  <div class="perf-label">
+                    <span class="perf-name">보고서 섹션 수</span>
+                    <span class="perf-desc">챕터 수가 많을수록 풍부하지만 느려요</span>
+                  </div>
+                  <div class="perf-slider-wrap">
+                    <span class="perf-val">{{ perfSettings.maxSections }}</span>
+                    <input type="range" v-model.number="perfSettings.maxSections" min="2" max="5" step="1" class="minimal-slider"
+                      :style="{ '--percent': ((perfSettings.maxSections - 2) / 3) * 100 + '%' }" />
+                    <div class="range-edge-labels"><span>2</span><span>5</span></div>
+                  </div>
+                </div>
+                <!-- 섹션당 툴 호출 수 -->
+                <div class="perf-row">
+                  <div class="perf-label">
+                    <span class="perf-name">섹션당 검색 횟수</span>
+                    <span class="perf-desc">많을수록 깊이 있는 분석, 적을수록 빠름</span>
+                  </div>
+                  <div class="perf-slider-wrap">
+                    <span class="perf-val">{{ perfSettings.maxToolCalls }}</span>
+                    <input type="range" v-model.number="perfSettings.maxToolCalls" min="1" max="5" step="1" class="minimal-slider"
+                      :style="{ '--percent': ((perfSettings.maxToolCalls - 1) / 4) * 100 + '%' }" />
+                    <div class="range-edge-labels"><span>1 (빠름)</span><span>5 (깊음)</span></div>
+                  </div>
+                </div>
+                <!-- 최대 토큰 수 -->
+                <div class="perf-row">
+                  <div class="perf-label">
+                    <span class="perf-name">섹션당 최대 토큰</span>
+                    <span class="perf-desc">높을수록 글이 길고 상세해요</span>
+                  </div>
+                  <div class="perf-slider-wrap">
+                    <span class="perf-val">{{ perfSettings.maxTokens.toLocaleString() }}</span>
+                    <input type="range" v-model.number="perfSettings.maxTokens" min="512" max="4096" step="512" class="minimal-slider"
+                      :style="{ '--percent': ((perfSettings.maxTokens - 512) / 3584) * 100 + '%' }" />
+                    <div class="range-edge-labels"><span>512 (빠름)</span><span>4096 (상세)</span></div>
+                  </div>
+                </div>
+                <div class="perf-summary">
+                  예상 보고서: 섹션 {{ perfSettings.maxSections }}개 × 검색 {{ perfSettings.maxToolCalls }}회 = 총 LLM 호출 약 {{ perfSettings.maxSections * (perfSettings.maxToolCalls + 2) }}회
+                </div>
+              </div>
+            </Transition>
+          </div>
+
           <div class="action-group dual">
-            <button 
+            <button
               class="action-btn secondary"
               @click="$emit('go-back')"
             >
-              ← {{ $t('step2.backToGraphBuild') }}
+              ← 그래프 구축으로 돌아가기
             </button>
-            <button 
+            <button
               class="action-btn primary"
               :disabled="phase < 4"
               @click="handleStartSimulation"
             >
-              {{ $t('step2.startDualWorldSim') }} ➝
+              듀얼 세계 병렬 시뮬레이션 시작 ➝
             </button>
           </div>
         </div>
@@ -544,35 +611,35 @@
         </div>
         
         <div class="modal-body">
-          <!-- 基本信息 -->
+          <!-- 기본 정보 -->
           <div class="modal-info-grid">
             <div class="info-item">
-              <span class="info-label">{{ $t('step2.profileModalAge') }}</span>
-              <span class="info-value">{{ selectedProfile.age || '-' }} {{ $t('step2.yearsOld') }}</span>
+              <span class="info-label">이벤트 표시 나이</span>
+              <span class="info-value">{{ selectedProfile.age || '-' }} 세</span>
             </div>
             <div class="info-item">
-              <span class="info-label">{{ $t('step2.profileModalGender') }}</span>
-              <span class="info-value">{{ { male: $t('step2.genderMale'), female: $t('step2.genderFemale'), other: $t('step2.genderOther') }[selectedProfile.gender] || selectedProfile.gender }}</span>
+              <span class="info-label">이벤트 표시 성별</span>
+              <span class="info-value">{{ { male: '남성', female: '여성', other: '기타' }[selectedProfile.gender] || selectedProfile.gender }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">{{ $t('step2.profileModalCountry') }}</span>
+              <span class="info-label">국가/지역</span>
               <span class="info-value">{{ selectedProfile.country || '-' }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">{{ $t('step2.profileModalMbti') }}</span>
+              <span class="info-label">이벤트 표시 MBTI</span>
               <span class="info-value mbti">{{ selectedProfile.mbti || '-' }}</span>
             </div>
           </div>
 
-          <!-- 简介 -->
+          <!-- 소개 -->
           <div class="modal-section">
-            <span class="section-label">{{ $t('step2.profileModalBio') }}</span>
-            <p class="section-bio">{{ selectedProfile.bio || $t('step2.noBio') }}</p>
+            <span class="section-label">페르소나 소개</span>
+            <p class="section-bio">{{ selectedProfile.bio || '소개 없음' }}</p>
           </div>
 
-          <!-- 关注话题 -->
+          <!-- 관심 주제 -->
           <div class="modal-section" v-if="selectedProfile.interested_topics?.length">
-            <span class="section-label">{{ $t('step2.profileModalTopics') }}</span>
+            <span class="section-label">현실 시드 연관 주제</span>
             <div class="topics-grid">
               <span 
                 v-for="topic in selectedProfile.interested_topics" 
@@ -582,27 +649,27 @@
             </div>
           </div>
 
-          <!-- 详细人设 -->
+          <!-- 상세 페르소나 -->
           <div class="modal-section" v-if="selectedProfile.persona">
-            <span class="section-label">{{ $t('step2.profileModalPersona') }}</span>
-            
-            <!-- 人设维度概览 -->
+            <span class="section-label">상세 페르소나 배경</span>
+
+            <!-- 페르소나 차원 개요 -->
             <div class="persona-dimensions">
               <div class="dimension-card">
-                <span class="dim-title">{{ $t('step2.personaDimExperience') }}</span>
-                <span class="dim-desc">{{ $t('step2.personaDimExperienceDesc') }}</span>
+                <span class="dim-title">이벤트 전체 경험</span>
+                <span class="dim-desc">이 이벤트에서의 완전한 행동 궤적</span>
               </div>
               <div class="dimension-card">
-                <span class="dim-title">{{ $t('step2.personaDimBehavior') }}</span>
-                <span class="dim-desc">{{ $t('step2.personaDimBehaviorDesc') }}</span>
+                <span class="dim-title">행동 패턴 프로파일</span>
+                <span class="dim-desc">경험 요약 및 행동 스타일 선호도</span>
               </div>
               <div class="dimension-card">
-                <span class="dim-title">{{ $t('step2.personaDimMemory') }}</span>
-                <span class="dim-desc">{{ $t('step2.personaDimMemoryDesc') }}</span>
+                <span class="dim-title">독특한 기억 인상</span>
+                <span class="dim-desc">현실 시드 기반 형성된 기억</span>
               </div>
               <div class="dimension-card">
-                <span class="dim-title">{{ $t('step2.personaDimSocial') }}</span>
-                <span class="dim-desc">{{ $t('step2.personaDimSocialDesc') }}</span>
+                <span class="dim-title">사회 관계 네트워크</span>
+                <span class="dim-desc">개체 연결 및 상호작용 그래프</span>
               </div>
             </div>
 
@@ -633,19 +700,16 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { useI18n } from 'vue-i18n'
-import {
-  prepareSimulation,
-  getPrepareStatus,
+import { 
+  prepareSimulation, 
+  getPrepareStatus, 
   getSimulationProfilesRealtime,
   getSimulationConfig,
-  getSimulationConfigRealtime
+  getSimulationConfigRealtime 
 } from '../api/simulation'
 
-const { t } = useI18n()
-
 const props = defineProps({
-  simulationId: String,  // 从父组件传入
+  simulationId: String,  // 부모 컴포넌트에서 전달
   projectData: Object,
   graphData: Object,
   systemLogs: Array
@@ -654,7 +718,7 @@ const props = defineProps({
 const emit = defineEmits(['go-back', 'next-step', 'add-log', 'update-status'])
 
 // State
-const phase = ref(0) // 0: 初始化, 1: 生成人设, 2: 生成配置, 3: 完成
+const phase = ref(0) // 0: 초기화, 1: 페르소나 생성, 2: 설정 생성, 3: 완료
 const taskId = ref(null)
 const prepareProgress = ref(0)
 const currentStage = ref('')
@@ -666,14 +730,23 @@ const simulationConfig = ref(null)
 const selectedProfile = ref(null)
 const showProfilesDetail = ref(true)
 
-// 日志去重：记录上一次输出的关键信息
+// 로그 중복 제거: 마지막으로 출력된 핵심 정보 기록
 let lastLoggedMessage = ''
 let lastLoggedProfileCount = 0
 let lastLoggedConfigStage = ''
 
-// 模拟轮数配置
-const useCustomRounds = ref(false) // 默认使用自动配置轮数
-const customMaxRounds = ref(40)   // 默认推荐40轮
+// 시뮬레이션 라운드 수 설정
+const useCustomRounds = ref(false) // 기본값: 자동 설정 라운드 수 사용
+const customMaxRounds = ref(40)   // 기본 추천: 40라운드
+
+// 성능 설정
+const showPerfSettings = ref(false)
+const perfSettings = ref({
+  maxAgents: 20,
+  maxSections: 5,
+  maxToolCalls: 5,
+  maxTokens: 4096,
+})
 
 // Watch stage to update phase
 watch(currentStage, (newStage) => {
@@ -681,28 +754,28 @@ watch(currentStage, (newStage) => {
     phase.value = 1
   } else if (newStage === '生成模拟配置' || newStage === 'generating_config') {
     phase.value = 2
-    // 进入配置生成阶段，开始轮询配置
+    // 설정 생성 단계 진입, 설정 폴링 시작
     if (!configTimer) {
-      addLog(t('log.startGeneratingConfig'))
+      addLog('듀얼 플랫폼 시뮬레이션 설정 생성 시작...')
       startConfigPolling()
     }
   } else if (newStage === '准备模拟脚本' || newStage === 'copying_scripts') {
-    phase.value = 2 // 仍属于配置阶段
+    phase.value = 2 // 여전히 설정 단계에 속함
   }
 })
 
-// 从配置中计算自动生成的轮数（不使用硬编码默认值）
+// 설정에서 자동 생성 라운드 수 계산 (하드코딩 기본값 미사용)
 const autoGeneratedRounds = computed(() => {
   if (!simulationConfig.value?.time_config) {
-    return null // 配置未生成时返回 null
+    return null // 설정 미생성 시 null 반환
   }
   const totalHours = simulationConfig.value.time_config.total_simulation_hours
   const minutesPerRound = simulationConfig.value.time_config.minutes_per_round
   if (!totalHours || !minutesPerRound) {
-    return null // 配置数据不完整时返回 null
+    return null // 설정 데이터 불완전 시 null 반환
   }
   const calculatedRounds = Math.floor((totalHours * 60) / minutesPerRound)
-  // 确保最大轮数不小于40（推荐值），避免滑动条范围异常
+  // 최대 라운드 수가 40 (추천값) 이상임을 보장, 슬라이더 범위 오류 방지
   return Math.max(calculatedRounds, 40)
 })
 
@@ -719,7 +792,7 @@ const displayProfiles = computed(() => {
   return profiles.value.slice(0, 6)
 })
 
-// 根据agent_id获取对应的username
+// agent_id에 해당하는 username 가져오기
 const getAgentUsername = (agentId) => {
   if (profiles.value && profiles.value.length > agentId && agentId >= 0) {
     const profile = profiles.value[agentId]
@@ -728,7 +801,7 @@ const getAgentUsername = (agentId) => {
   return `agent_${agentId}`
 }
 
-// 计算所有人设的关联话题总数
+// 모든 페르소나의 연관 주제 총 수 계산
 const totalTopicsCount = computed(() => {
   return profiles.value.reduce((sum, p) => {
     return sum + (p.interested_topics?.length || 0)
@@ -740,20 +813,21 @@ const addLog = (msg) => {
   emit('add-log', msg)
 }
 
-// 处理开始模拟按钮点击
+// 시뮬레이션 시작 버튼 클릭 처리
 const handleStartSimulation = () => {
-  // 构建传递给父组件的参数
-  const params = {}
-  
-  if (useCustomRounds.value) {
-    // 用户自定义轮数，传递 max_rounds 参数
-    params.maxRounds = customMaxRounds.value
-    addLog(t('log.startSimCustomRounds', { rounds: customMaxRounds.value }))
-  } else {
-    // 用户选择保持自动生成的轮数，不传递 max_rounds 参数
-    addLog(t('log.startSimAutoRounds', { rounds: autoGeneratedRounds.value }))
+  // 부모 컴포넌트에 전달할 파라미터 구성
+  const params = {
+    reportSettings: { ...perfSettings.value }
   }
-  
+
+  if (useCustomRounds.value) {
+    params.maxRounds = customMaxRounds.value
+    addLog(`시뮬레이션 시작, 커스텀 라운드 수: ${customMaxRounds.value} 라운드`)
+  } else {
+    addLog(`시뮬레이션 시작, 자동 설정 라운드 수 사용: ${autoGeneratedRounds.value} 라운드`)
+  }
+
+  addLog(`성능 설정 - 페르소나: 최대 ${perfSettings.value.maxAgents}명, 섹션: ${perfSettings.value.maxSections}개, 검색: ${perfSettings.value.maxToolCalls}회, 토큰: ${perfSettings.value.maxTokens}`)
   emit('next-step', params)
 }
 
@@ -768,58 +842,59 @@ const selectProfile = (profile) => {
   selectedProfile.value = profile
 }
 
-// 自动开始准备模拟
+// 시뮬레이션 준비 자동 시작
 const startPrepareSimulation = async () => {
   if (!props.simulationId) {
-    addLog(t('log.errorMissingSimId'))
+    addLog('오류: simulationId 누락')
     emit('update-status', 'error')
     return
   }
-  
-  // 标记第一步完成，开始第二步
+
+  // 첫 번째 단계 완료 표시, 두 번째 단계 시작
   phase.value = 1
-  addLog(t('log.simInstanceCreated', { id: props.simulationId }))
-  addLog(t('log.preparingSimEnv'))
+  addLog(`시뮬레이션 인스턴스 생성됨: ${props.simulationId}`)
+  addLog('시뮬레이션 환경 준비 중...')
   emit('update-status', 'processing')
   
   try {
     const res = await prepareSimulation({
       simulation_id: props.simulationId,
       use_llm_for_profiles: true,
-      parallel_profile_count: 5
+      parallel_profile_count: 5,
+      max_agents: perfSettings.value.maxAgents
     })
     
     if (res.success && res.data) {
       if (res.data.already_prepared) {
-        addLog(t('log.detectedExistingPrep'))
+        addLog('완료된 준비 작업이 이미 있음, 직접 사용')
         await loadPreparedData()
         return
       }
       
       taskId.value = res.data.task_id
-      addLog(t('log.prepareTaskStarted'))
-      addLog(t('log.prepareTaskId', { taskId: res.data.task_id }))
+      addLog(`준비 작업 시작됨`)
+      addLog(`  └─ Task ID: ${res.data.task_id}`)
       
-      // 立即设置预期Agent总数（从prepare接口返回值获取）
+      // 예상 에이전트 총 수 즉시 설정 (prepare API 반환값에서 가져옴)
       if (res.data.expected_entities_count) {
         expectedTotal.value = res.data.expected_entities_count
-        addLog(t('log.zepEntitiesFound', { count: res.data.expected_entities_count }))
+        addLog(`Zep 그래프에서 ${res.data.expected_entities_count} 개 엔티티 읽음`)
         if (res.data.entity_types && res.data.entity_types.length > 0) {
-          addLog(t('log.entityTypes', { types: res.data.entity_types.join(', ') }))
+          addLog(`  └─ 엔티티 유형: ${res.data.entity_types.join(', ')}`)
         }
       }
-      
-      addLog(t('log.startPollingProgress'))
-      // 开始轮询进度
+
+      addLog('준비 진행도 폴링 시작...')
+      // 진행도 폴링 시작
       startPolling()
-      // 开始实时获取 Profiles
+      // 실시간 프로필 가져오기 시작
       startProfilesPolling()
     } else {
-      addLog(t('log.prepareFailed', { error: res.error || t('common.unknownError') }))
+      addLog(`준비 실패: ${res.error || '알 수 없는 오류'}`)
       emit('update-status', 'error')
     }
   } catch (err) {
-    addLog(t('log.prepareException', { error: err.message }))
+    addLog(`준비 오류: ${err.message}`)
     emit('update-status', 'error')
   }
 }
@@ -858,15 +933,15 @@ const pollPrepareStatus = async () => {
     if (res.success && res.data) {
       const data = res.data
       
-      // 更新进度
+      // 진행도 업데이트
       prepareProgress.value = data.progress || 0
       progressMessage.value = data.message || ''
       
-      // 解析阶段信息并输出详细日志
+      // 단계 정보 파싱 및 상세 로그 출력
       if (data.progress_detail) {
         currentStage.value = data.progress_detail.current_stage_name || ''
         
-        // 输出详细进度日志（避免重复）
+        // 상세 진행도 로그 출력 (중복 방지)
         const detail = data.progress_detail
         const logKey = `${detail.current_stage}-${detail.current_item}-${detail.total_items}`
         if (logKey !== lastLoggedMessage && detail.item_description) {
@@ -879,32 +954,32 @@ const pollPrepareStatus = async () => {
           }
         }
       } else if (data.message) {
-        // 从消息中提取阶段
+        // 메시지에서 단계 추출
         const match = data.message.match(/\[(\d+)\/(\d+)\]\s*([^:]+)/)
         if (match) {
           currentStage.value = match[3].trim()
         }
-        // 输出消息日志（避免重复）
+        // 메시지 로그 출력 (중복 방지)
         if (data.message !== lastLoggedMessage) {
           lastLoggedMessage = data.message
           addLog(data.message)
         }
       }
       
-      // 检查是否完成
+      // 완료 여부 확인
       if (data.status === 'completed' || data.status === 'ready' || data.already_prepared) {
-        addLog(t('log.prepareComplete'))
+        addLog('✓ 준비 작업 완료')
         stopPolling()
         stopProfilesPolling()
         await loadPreparedData()
       } else if (data.status === 'failed') {
-        addLog(t('log.prepareFailedWithError', { error: data.error || t('common.unknownError') }))
+        addLog(`✗ 준비 실패: ${data.error || '알 수 없는 오류'}`)
         stopPolling()
         stopProfilesPolling()
       }
     }
   } catch (err) {
-    console.warn('轮询状态失败:', err)
+    console.warn('상태 폴링 실패:', err)
   }
 }
 
@@ -917,19 +992,19 @@ const fetchProfilesRealtime = async () => {
     if (res.success && res.data) {
       const prevCount = profiles.value.length
       profiles.value = res.data.profiles || []
-      // 只有当 API 返回有效值时才更新，避免覆盖已有的有效值
+      // API가 유효한 값을 반환할 때만 업데이트 (기존 유효값 덮어쓰기 방지)
       if (res.data.total_expected) {
         expectedTotal.value = res.data.total_expected
       }
       
-      // 提取实体类型
+      // 엔티티 유형 추출
       const types = new Set()
       profiles.value.forEach(p => {
         if (p.entity_type) types.add(p.entity_type)
       })
       entityTypes.value = Array.from(types)
       
-      // 输出 Profile 生成进度日志（仅当数量变化时）
+      // 프로필 생성 진행도 로그 출력 (수량 변화 시에만)
       const currentCount = profiles.value.length
       if (currentCount > 0 && currentCount !== lastLoggedProfileCount) {
         lastLoggedProfileCount = currentCount
@@ -937,22 +1012,22 @@ const fetchProfilesRealtime = async () => {
         const latestProfile = profiles.value[currentCount - 1]
         const profileName = latestProfile?.name || latestProfile?.username || `Agent_${currentCount}`
         if (currentCount === 1) {
-          addLog(t('log.startGeneratingAgentProfiles'))
+          addLog(`에이전트 페르소나 생성 시작...`)
         }
-        addLog(t('log.agentProfile', { current: currentCount, total: total, name: profileName, profession: latestProfile?.profession || t('step2.unknownProfession') }))
+        addLog(`→ 에이전트 페르소나 ${currentCount}/${total}: ${profileName} (${latestProfile?.profession || '직업 미상'})`)
 
-        // 如果全部生成完成
+        // 전부 생성 완료된 경우
         if (expectedTotal.value && currentCount >= expectedTotal.value) {
-          addLog(t('log.allProfilesComplete', { count: currentCount }))
+          addLog(`✓ 전체 ${currentCount} 개 에이전트 페르소나 생성 완료`)
         }
       }
     }
   } catch (err) {
-    console.warn('获取 Profiles 失败:', err)
+    console.warn('프로필 가져오기 실패:', err)
   }
 }
 
-// 配置轮询
+// 설정 폴링
 const startConfigPolling = () => {
   configTimer = setInterval(fetchConfigRealtime, 2000)
 }
@@ -973,87 +1048,87 @@ const fetchConfigRealtime = async () => {
     if (res.success && res.data) {
       const data = res.data
       
-      // 输出配置生成阶段日志（避免重复）
+      // 설정 생성 단계 로그 출력 (중복 방지)
       if (data.generation_stage && data.generation_stage !== lastLoggedConfigStage) {
         lastLoggedConfigStage = data.generation_stage
         if (data.generation_stage === 'generating_profiles') {
-          addLog(t('log.generatingAgentProfileConfig'))
+          addLog('에이전트 페르소나 설정 생성 중...')
         } else if (data.generation_stage === 'generating_config') {
-          addLog(t('log.generatingLLMConfig'))
+          addLog('LLM 호출하여 시뮬레이션 설정 파라미터 생성 중...')
         }
       }
-      
-      // 如果配置已生成
+
+      // 설정이 생성된 경우
       if (data.config_generated && data.config) {
         simulationConfig.value = data.config
-        addLog(t('log.configComplete'))
+        addLog('✓ 시뮬레이션 설정 생성 완료')
 
-        // 显示详细配置摘要
+        // 상세 설정 요약 표시
         if (data.summary) {
-          addLog(t('log.configSummaryAgents', { count: data.summary.total_agents }))
-          addLog(t('log.configSummaryHours', { hours: data.summary.simulation_hours }))
-          addLog(t('log.configSummaryPosts', { count: data.summary.initial_posts_count }))
-          addLog(t('log.configSummaryTopics', { count: data.summary.hot_topics_count }))
-          addLog(t('log.configSummaryPlatforms', { twitter: data.summary.has_twitter_config ? '✓' : '✗', reddit: data.summary.has_reddit_config ? '✓' : '✗' }))
+          addLog(`  ├─ 에이전트 수: ${data.summary.total_agents} 개`)
+          addLog(`  ├─ 시뮬레이션 시간: ${data.summary.simulation_hours} 시간`)
+          addLog(`  ├─ 초기 게시물: ${data.summary.initial_posts_count} 개`)
+          addLog(`  ├─ 핫 토픽: ${data.summary.hot_topics_count} 개`)
+          addLog(`  └─ 플랫폼 설정: Twitter ${data.summary.has_twitter_config ? '✓' : '✗'}, Reddit ${data.summary.has_reddit_config ? '✓' : '✗'}`)
         }
-        
-        // 显示时间配置详情
+
+        // 시간 설정 상세 표시
         if (data.config.time_config) {
           const tc = data.config.time_config
-          addLog(t('log.timeConfigDetail', { minutes: tc.minutes_per_round, rounds: Math.floor((tc.total_simulation_hours * 60) / tc.minutes_per_round) }))
+          addLog(`시간 설정: 라운드당 ${tc.minutes_per_round} 분, 총 ${Math.floor((tc.total_simulation_hours * 60) / tc.minutes_per_round)} 라운드`)
         }
-        
-        // 显示事件配置
+
+        // 이벤트 설정 표시
         if (data.config.event_config?.narrative_direction) {
           const narrative = data.config.event_config.narrative_direction
-          addLog(t('log.narrativeDirection', { direction: narrative.length > 50 ? narrative.substring(0, 50) + '...' : narrative }))
+          addLog(`내러티브 방향: ${narrative.length > 50 ? narrative.substring(0, 50) + '...' : narrative}`)
         }
-        
+
         stopConfigPolling()
         phase.value = 4
-        addLog(t('log.envSetupComplete'))
+        addLog('✓ 환경 설정 완료, 시뮬레이션 시작 가능')
         emit('update-status', 'completed')
       }
     }
   } catch (err) {
-    console.warn('获取 Config 失败:', err)
+    console.warn('설정 가져오기 실패:', err)
   }
 }
 
 const loadPreparedData = async () => {
   phase.value = 2
-  addLog(t('log.loadingExistingConfig'))
+  addLog('기존 설정 데이터 로드 중...')
 
-  // 最后获取一次 Profiles
+  // 마지막으로 프로필 한 번 가져오기
   await fetchProfilesRealtime()
-  addLog(t('log.loadedAgentProfiles', { count: profiles.value.length }))
+  addLog(`${profiles.value.length} 개 에이전트 페르소나 로드됨`)
 
-  // 获取配置（使用实时接口）
+  // 설정 가져오기 (실시간 인터페이스 사용)
   try {
     const res = await getSimulationConfigRealtime(props.simulationId)
     if (res.success && res.data) {
       if (res.data.config_generated && res.data.config) {
         simulationConfig.value = res.data.config
-        addLog(t('log.configLoadSuccess'))
+        addLog('✓ 시뮬레이션 설정 로드 성공')
 
-        // 显示详细配置摘要
+        // 상세 설정 요약 표시
         if (res.data.summary) {
-          addLog(t('log.configSummaryAgents', { count: res.data.summary.total_agents }))
-          addLog(t('log.configSummaryHours', { hours: res.data.summary.simulation_hours }))
-          addLog(t('log.configSummaryPostsAlt', { count: res.data.summary.initial_posts_count }))
+          addLog(`  ├─ 에이전트 수: ${res.data.summary.total_agents} 개`)
+          addLog(`  ├─ 시뮬레이션 시간: ${res.data.summary.simulation_hours} 시간`)
+          addLog(`  └─ 초기 게시물: ${res.data.summary.initial_posts_count} 개`)
         }
 
-        addLog(t('log.envSetupComplete'))
+        addLog('✓ 환경 설정 완료, 시뮬레이션 시작 가능')
         phase.value = 4
         emit('update-status', 'completed')
       } else {
-        // 配置尚未生成，开始轮询
-        addLog(t('log.configGenerating'))
+        // 설정 아직 생성되지 않음, 폴링 시작
+        addLog('설정 생성 중, 폴링 대기 시작...')
         startConfigPolling()
       }
     }
   } catch (err) {
-    addLog(t('log.loadConfigFailed', { error: err.message }))
+    addLog(`설정 로드 실패: ${err.message}`)
     emit('update-status', 'error')
   }
 }
@@ -1069,9 +1144,9 @@ watch(() => props.systemLogs?.length, () => {
 })
 
 onMounted(() => {
-  // 自动开始准备流程
+  // 준비 프로세스 자동 시작
   if (props.simulationId) {
-    addLog(t('log.step2Init'))
+    addLog('Step2 환경 설정 초기화')
     startPrepareSimulation()
   }
 })
@@ -1905,7 +1980,7 @@ onUnmounted(() => {
   flex: 1;
 }
 
-/* 基本信息网格 */
+/* 기본 정보 그리드 */
 .modal-info-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1941,7 +2016,7 @@ onUnmounted(() => {
   color: #FF5722;
 }
 
-/* 模块区域 */
+/* 모달 섹션 */
 .modal-section {
   margin-bottom: 28px;
 }
@@ -1967,7 +2042,7 @@ onUnmounted(() => {
   border-left: 3px solid #E0E0E0;
 }
 
-/* 话题标签 */
+/* 토픽 태그 */
 .topics-grid {
   display: flex;
   flex-wrap: wrap;
@@ -1989,7 +2064,7 @@ onUnmounted(() => {
   color: #0D47A1;
 }
 
-/* 详细人设 */
+/* 상세 페르소나 */
 .persona-dimensions {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -2275,7 +2350,40 @@ onUnmounted(() => {
   margin: 0;
 }
 
-/* 模拟轮数配置样式 */
+/* 시뮬레이션 라운드 수 설정 스타일 */
+.perf-config-section {
+  margin: 16px 0 24px;
+  border: 1px solid #EAEAEA;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.perf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #F9F9F9;
+  cursor: pointer;
+  user-select: none;
+}
+.perf-header:hover { background: #F3F3F3; }
+.perf-toggle { font-size: 11px; color: #999; }
+.perf-content { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+.perf-row { display: flex; align-items: center; gap: 16px; }
+.perf-label { flex: 0 0 160px; }
+.perf-name { display: block; font-size: 13px; font-weight: 600; color: #333; }
+.perf-desc { display: block; font-size: 11px; color: #999; margin-top: 2px; }
+.perf-slider-wrap { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.perf-val { font-size: 16px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.range-edge-labels { display: flex; justify-content: space-between; font-size: 10px; color: #BBB; }
+.perf-summary {
+  font-size: 11px;
+  color: #888;
+  background: #F5F5F5;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
 .rounds-config-section {
   margin: 24px 0;
   padding-top: 24px;

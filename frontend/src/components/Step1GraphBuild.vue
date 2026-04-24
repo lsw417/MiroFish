@@ -6,25 +6,25 @@
         <div class="card-header">
           <div class="step-info">
             <span class="step-num">01</span>
-            <span class="step-title">{{ $t('step1.ontologyGeneration') }}</span>
+            <span class="step-title">온톨로지 생성</span>
           </div>
           <div class="step-status">
-            <span v-if="currentPhase > 0" class="badge success">{{ $t('step1.ontologyCompleted') }}</span>
-            <span v-else-if="currentPhase === 0" class="badge processing">{{ $t('step1.ontologyGenerating') }}</span>
-            <span v-else class="badge pending">{{ $t('step1.ontologyPending') }}</span>
+            <span v-if="currentPhase > 0" class="badge success">완료</span>
+            <span v-else-if="currentPhase === 0" class="badge processing">생성 중</span>
+            <span v-else class="badge pending">대기</span>
           </div>
         </div>
         
         <div class="card-content">
           <p class="api-note">POST /api/graph/ontology/generate</p>
           <p class="description">
-            {{ $t('step1.ontologyDesc') }}
+            LLM이 문서 내용과 시뮬레이션 요구사항을 분석하여 현실 시드를 추출하고, 적합한 온톨로지 구조를 자동으로 생성합니다
           </p>
 
           <!-- Loading / Progress -->
           <div v-if="currentPhase === 0 && ontologyProgress" class="progress-section">
             <div class="spinner-sm"></div>
-            <span>{{ ontologyProgress.message || $t('step1.analyzingDocs') }}</span>
+            <span>{{ ontologyProgress.message || '문서 분석 중...' }}</span>
           </div>
 
           <!-- Detail Overlay -->
@@ -110,34 +110,34 @@
         <div class="card-header">
           <div class="step-info">
             <span class="step-num">02</span>
-            <span class="step-title">{{ $t('step1.graphRagBuild') }}</span>
+            <span class="step-title">GraphRAG 구축</span>
           </div>
           <div class="step-status">
-            <span v-if="currentPhase > 1" class="badge success">{{ $t('step1.ontologyCompleted') }}</span>
+            <span v-if="currentPhase > 1" class="badge success">완료</span>
             <span v-else-if="currentPhase === 1" class="badge processing">{{ buildProgress?.progress || 0 }}%</span>
-            <span v-else class="badge pending">{{ $t('step1.ontologyPending') }}</span>
+            <span v-else class="badge pending">대기</span>
           </div>
         </div>
 
         <div class="card-content">
           <p class="api-note">POST /api/graph/build</p>
           <p class="description">
-            {{ $t('step1.graphRagDesc') }}
+            생성된 온톨로지를 기반으로 문서를 자동 청킹하여 Zep으로 지식 그래프를 구축하고, 엔티티와 관계를 추출하여 시계열 메모리와 커뮤니티 요약을 형성합니다
           </p>
           
           <!-- Stats Cards -->
           <div class="stats-grid">
             <div class="stat-card">
               <span class="stat-value">{{ graphStats.nodes }}</span>
-              <span class="stat-label">{{ $t('step1.entityNodes') }}</span>
+              <span class="stat-label">엔티티 노드</span>
             </div>
             <div class="stat-card">
               <span class="stat-value">{{ graphStats.edges }}</span>
-              <span class="stat-label">{{ $t('step1.relationEdges') }}</span>
+              <span class="stat-label">관계 엣지</span>
             </div>
             <div class="stat-card">
               <span class="stat-value">{{ graphStats.types }}</span>
-              <span class="stat-label">{{ $t('step1.schemaTypes') }}</span>
+              <span class="stat-label">SCHEMA 유형</span>
             </div>
           </div>
         </div>
@@ -148,23 +148,23 @@
         <div class="card-header">
           <div class="step-info">
             <span class="step-num">03</span>
-            <span class="step-title">{{ $t('step1.buildComplete') }}</span>
+            <span class="step-title">구축 완료</span>
           </div>
           <div class="step-status">
-            <span v-if="currentPhase >= 2" class="badge accent">{{ $t('step1.inProgress') }}</span>
+            <span v-if="currentPhase >= 2" class="badge accent">진행 중</span>
           </div>
         </div>
         
         <div class="card-content">
           <p class="api-note">POST /api/simulation/create</p>
-          <p class="description">{{ $t('step1.buildCompleteDesc') }}</p>
-          <button 
-            class="action-btn" 
+          <p class="description">지식 그래프 구축이 완료되었습니다. 다음 단계인 시뮬레이션 환경 설정으로 진행하세요</p>
+          <button
+            class="action-btn"
             :disabled="currentPhase < 2 || creatingSimulation"
             @click="handleEnterEnvSetup"
           >
             <span v-if="creatingSimulation" class="spinner-sm"></span>
-            {{ creatingSimulation ? $t('step1.creating') : $t('step1.enterEnvSetup') + ' ➝' }}
+            {{ creatingSimulation ? '생성 중...' : '환경 설정으로 이동 ➝' }}
           </button>
         </div>
       </div>
@@ -189,11 +189,9 @@
 <script setup>
 import { computed, ref, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
 import { createSimulation } from '../api/simulation'
 
 const router = useRouter()
-const { t } = useI18n()
 
 const props = defineProps({
   currentPhase: { type: Number, default: 0 },
@@ -213,7 +211,7 @@ const creatingSimulation = ref(false)
 // 进入环境搭建 - 创建 simulation 并跳转
 const handleEnterEnvSetup = async () => {
   if (!props.projectData?.project_id || !props.projectData?.graph_id) {
-    console.error('缺少项目或图谱信息')
+    console.error('프로젝트 또는 그래프 정보 없음')
     return
   }
   
@@ -234,12 +232,12 @@ const handleEnterEnvSetup = async () => {
         params: { simulationId: res.data.simulation_id }
       })
     } else {
-      console.error('创建模拟失败:', res.error)
-      alert(t('step1.createSimulationFailed', { error: res.error || t('common.unknownError') }))
+      console.error('시뮬레이션 생성 실패:', res.error)
+      alert('시뮬레이션 생성 실패: ' + (res.error || '알 수 없는 오류'))
     }
   } catch (err) {
-    console.error('创建模拟异常:', err)
-    alert(t('step1.createSimulationException', { error: err.message }))
+    console.error('시뮬레이션 생성 오류:', err)
+    alert('시뮬레이션 생성 오류: ' + err.message)
   } finally {
     creatingSimulation.value = false
   }

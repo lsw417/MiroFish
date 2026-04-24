@@ -378,14 +378,23 @@ class GraphBuilderService:
                 try:
                     episode = self.client.graph.episode.get(uuid_=ep_uuid)
                     is_processed = getattr(episode, 'processed', False)
-                    
+
                     if is_processed:
                         pending_episodes.remove(ep_uuid)
                         completed_count += 1
-                        
+
                 except Exception as e:
-                    # 忽略单个查询错误，继续
+                    err_str = str(e)
+                    if '429' in err_str or 'Rate limit' in err_str:
+                        # rate limit: 65초 대기 후 이번 루프 중단
+                        logger.warning(f"Zep rate limit during episode check, waiting 65s...")
+                        time.sleep(65)
+                        break  # 내부 루프 중단, 외부 루프에서 다시 시도
+                    # 그 외 오류는 무시하고 계속
                     pass
+
+                # Free 플랜 rate limit (초당 5회) 준수: 요청 사이 0.25초 딜레이
+                time.sleep(0.25)
             
             elapsed = int(time.time() - start_time)
             if progress_callback:

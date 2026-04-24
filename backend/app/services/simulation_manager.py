@@ -235,7 +235,8 @@ class SimulationManager:
         defined_entity_types: Optional[List[str]] = None,
         use_llm_for_profiles: bool = True,
         progress_callback: Optional[callable] = None,
-        parallel_profile_count: int = 3
+        parallel_profile_count: int = 3,
+        max_agents: Optional[int] = None
     ) -> SimulationState:
         """
         准备模拟环境（全程自动化）
@@ -300,7 +301,14 @@ class SimulationManager:
                 state.error = "没有找到符合条件的实体，请检查图谱是否正确构建"
                 self._save_simulation_state(state)
                 return state
-            
+
+            # max_agents 제한 적용
+            if max_agents and len(filtered.entities) > max_agents:
+                logger.info(f"max_agents={max_agents} 적용: {len(filtered.entities)}개 → {max_agents}개 엔티티로 제한")
+                filtered.entities = filtered.entities[:max_agents]
+                filtered.filtered_count = max_agents
+                state.entities_count = max_agents
+
             # ========== 阶段2: 生成Agent Profile ==========
             total_entities = len(filtered.entities)
             

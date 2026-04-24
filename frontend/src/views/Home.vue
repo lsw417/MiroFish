@@ -4,9 +4,8 @@
     <nav class="navbar">
       <div class="nav-brand">MIROFISH</div>
       <div class="nav-links">
-        <LanguageSwitcher />
         <a href="https://github.com/666ghj/MiroFish" target="_blank" class="github-link">
-          {{ $t('nav.visitGithub') }} <span class="arrow">↗</span>
+          GitHub 홈페이지 방문 <span class="arrow">↗</span>
         </a>
       </div>
     </nav>
@@ -16,25 +15,21 @@
       <section class="hero-section">
         <div class="hero-left">
           <div class="tag-row">
-            <span class="orange-tag">{{ $t('home.tagline') }}</span>
-            <span class="version-text">{{ $t('home.version') }}</span>
+            <span class="orange-tag">심플하고 범용적인 군집 지능 엔진</span>
+            <span class="version-text">/ v0.1-미리보기</span>
           </div>
           
           <h1 class="main-title">
-            {{ $t('home.heroTitle1') }}<br>
-            <span class="gradient-text">{{ $t('home.heroTitle2') }}</span>
+            어떤 문서든 업로드하세요<br>
+            <span class="gradient-text">지금 바로 미래를 예측하세요</span>
           </h1>
           
           <div class="hero-desc">
             <p>
-              <i18n-t keypath="home.heroDesc" tag="span">
-                <template #brand><span class="highlight-bold">{{ $t('home.heroDescBrand') }}</span></template>
-                <template #agentScale><span class="highlight-orange">{{ $t('home.heroDescAgentScale') }}</span></template>
-                <template #optimalSolution><span class="highlight-code">{{ $t('home.heroDescOptimalSolution') }}</span></template>
-              </i18n-t>
+              단 한 단락의 텍스트만으로도, <span class=”highlight-bold”>MiroFish</span>는 그 속의 현실 시드를 기반으로 최대 <span class=”highlight-orange”>수백만 에이전트</span>로 구성된 평행 세계를 완전 자동으로 생성합니다. 신의 시점에서 변수를 주입하여, 복잡한 군집 상호작용 속에서 동적 환경의 <span class=”highlight-code”>”국소 최적해”</span>를 탐색합니다
             </p>
             <p class="slogan-text">
-              {{ $t('home.slogan') }}<span class="blinking-cursor">_</span>
+              미래를 에이전트 군집 속에서 시뮬레이션하고, 결정을 수백 번의 검증 끝에 승리로 이끌어라<span class="blinking-cursor">_</span>
             </p>
           </div>
            
@@ -58,65 +53,65 @@
         <!-- 左栏：状态与步骤 -->
         <div class="left-panel">
           <div class="panel-header">
-            <span class="status-dot">■</span> {{ $t('home.systemStatus') }}
+            <span class="status-dot">■</span> 시스템 상태
           </div>
-          
-          <h2 class="section-title">{{ $t('home.systemReady') }}</h2>
+
+          <h2 class="section-title">준비 완료</h2>
           <p class="section-desc">
-            {{ $t('home.systemReadyDesc') }}
+            예측 엔진 대기 중. 여러 비정형 데이터를 업로드하여 시뮬레이션 시퀀스를 초기화할 수 있습니다
           </p>
           
           <!-- 数据指标卡片 -->
           <div class="metrics-row">
             <div class="metric-card">
-              <div class="metric-value">{{ $t('home.metricLowCost') }}</div>
-              <div class="metric-label">{{ $t('home.metricLowCostDesc') }}</div>
+              <div class="metric-value">저비용</div>
+              <div class="metric-label">일반 시뮬레이션 평균 $5/회</div>
             </div>
             <div class="metric-card">
-              <div class="metric-value">{{ $t('home.metricHighAvail') }}</div>
-              <div class="metric-label">{{ $t('home.metricHighAvailDesc') }}</div>
+              <div class="metric-value">고가용</div>
+              <div class="metric-label">최대 수백만 에이전트 시뮬레이션</div>
             </div>
           </div>
 
           <!-- 项目模拟步骤介绍 (新增区域) -->
           <div class="steps-container">
             <div class="steps-header">
-               <span class="diamond-icon">◇</span> {{ $t('home.workflowSequence') }}
+               <span class="diamond-icon">◇</span> 워크플로우 시퀀스
             </div>
             <div class="workflow-list">
               <div class="workflow-item">
                 <span class="step-num">01</span>
                 <div class="step-info">
-                  <div class="step-title">{{ $t('home.step01Title') }}</div>
-                  <div class="step-desc">{{ $t('home.step01Desc') }}</div>
+                  <div class="step-title">지식 그래프 구축</div>
+                  <div class="step-desc">현실 시드 추출 & 개체/군집 메모리 주입 & GraphRAG 구축</div>
                 </div>
               </div>
               <div class="workflow-item">
                 <span class="step-num">02</span>
                 <div class="step-info">
-                  <div class="step-title">{{ $t('home.step02Title') }}</div>
-                  <div class="step-desc">{{ $t('home.step02Desc') }}</div>
+                  <div class="step-title">환경 설정</div>
+                  <div class="step-desc">엔티티 관계 추출 & 페르소나 생성 & 환경 설정 에이전트 시뮬레이션 파라미터 주입</div>
                 </div>
               </div>
               <div class="workflow-item">
                 <span class="step-num">03</span>
                 <div class="step-info">
-                  <div class="step-title">{{ $t('home.step03Title') }}</div>
-                  <div class="step-desc">{{ $t('home.step03Desc') }}</div>
+                  <div class="step-title">시뮬레이션 시작</div>
+                  <div class="step-desc">듀얼 플랫폼 병렬 시뮬레이션 & 예측 요구사항 자동 분석 & 시계열 메모리 동적 업데이트</div>
                 </div>
               </div>
               <div class="workflow-item">
                 <span class="step-num">04</span>
                 <div class="step-info">
-                  <div class="step-title">{{ $t('home.step04Title') }}</div>
-                  <div class="step-desc">{{ $t('home.step04Desc') }}</div>
+                  <div class="step-title">보고서 생성</div>
+                  <div class="step-desc">ReportAgent가 풍부한 도구 세트로 시뮬레이션 후 환경과 심층 상호작용</div>
                 </div>
               </div>
               <div class="workflow-item">
                 <span class="step-num">05</span>
                 <div class="step-info">
-                  <div class="step-title">{{ $t('home.step05Title') }}</div>
-                  <div class="step-desc">{{ $t('home.step05Desc') }}</div>
+                  <div class="step-title">심층 인터랙션</div>
+                  <div class="step-desc">시뮬레이션 세계의 누구와도 대화 & ReportAgent와 대화</div>
                 </div>
               </div>
             </div>
@@ -129,8 +124,8 @@
             <!-- 上传区域 -->
             <div class="console-section">
               <div class="console-header">
-                <span class="console-label">{{ $t('home.realitySeed') }}</span>
-                <span class="console-meta">{{ $t('home.supportedFormats') }}</span>
+                <span class="console-label">01 / 현실 시드</span>
+                <span class="console-meta">지원 형식: PDF, MD, TXT</span>
               </div>
               
               <div 
@@ -153,8 +148,8 @@
                 
                 <div v-if="files.length === 0" class="upload-placeholder">
                   <div class="upload-icon">↑</div>
-                  <div class="upload-title">{{ $t('home.dragToUpload') }}</div>
-                  <div class="upload-hint">{{ $t('home.orBrowse') }}</div>
+                  <div class="upload-title">파일을 드래그하여 업로드</div>
+                  <div class="upload-hint">또는 클릭하여 파일 탐색</div>
                 </div>
                 
                 <div v-else class="file-list">
@@ -169,23 +164,23 @@
 
             <!-- 分割线 -->
             <div class="console-divider">
-              <span>{{ $t('home.inputParams') }}</span>
+              <span>파라미터 입력</span>
             </div>
 
             <!-- 输入区域 -->
             <div class="console-section">
               <div class="console-header">
-                <span class="console-label">{{ $t('home.simulationPrompt') }}</span>
+                <span class="console-label">>_ 02 / 시뮬레이션 프롬프트</span>
               </div>
               <div class="input-wrapper">
                 <textarea
                   v-model="formData.simulationRequirement"
                   class="code-input"
-                  :placeholder="$t('home.promptPlaceholder')"
+                  placeholder="// 자연어로 시뮬레이션 또는 예측 요구사항을 입력하세요 (예: 특정 정책이 발표된다면 어떤 여론 변화가 생길까요?)"
                   rows="6"
                   :disabled="loading"
                 ></textarea>
-                <div class="model-badge">{{ $t('home.engineBadge') }}</div>
+                <div class="model-badge">엔진: MiroFish-V1.0</div>
               </div>
             </div>
 
@@ -196,8 +191,8 @@
                 @click="startSimulation"
                 :disabled="!canSubmit || loading"
               >
-                <span v-if="!loading">{{ $t('home.startEngine') }}</span>
-                <span v-else>{{ $t('home.initializing') }}</span>
+                <span v-if="!loading">엔진 시작</span>
+                <span v-else>초기화 중...</span>
                 <span class="btn-arrow">→</span>
               </button>
             </div>
@@ -215,7 +210,6 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import HistoryDatabase from '../components/HistoryDatabase.vue'
-import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 
 const router = useRouter()
 
@@ -357,7 +351,6 @@ const startSimulation = () => {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 16px;
 }
 
 .github-link {
@@ -893,61 +886,5 @@ const startSimulation = () => {
     max-width: 200px;
     margin-bottom: 20px;
   }
-}
-</style>
-
-<style>
-/* English locale adjustments (unscoped to target html[lang]) */
-html[lang="en"] .main-title {
-  font-size: 3.5rem;
-  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  letter-spacing: -1px;
-}
-
-html[lang="en"] .hero-desc {
-  text-align: left;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  letter-spacing: 0;
-}
-
-html[lang="en"] .slogan-text {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  letter-spacing: 0;
-}
-
-html[lang="en"] .tag-row {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-html[lang="en"] .navbar .nav-links {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Left pane: system status + workflow */
-html[lang="en"] .status-section {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-html[lang="en"] .status-section .status-ready {
-  font-size: 1.6rem;
-}
-
-html[lang="en"] .status-section .metric-value {
-  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 1.4rem;
-}
-
-html[lang="en"] .workflow-list .step-title {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-html[lang="en"] .workflow-list .step-desc {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  font-size: 0.72rem !important;
-  line-height: 1.4 !important;
-}
-
-html[lang="en"] .workflow-list {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 </style>
